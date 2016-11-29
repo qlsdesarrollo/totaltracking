@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui" 
+      xmlns:pm="http://primefaces.org/mobile"
+      >
+    <f:event listener="#{login.initConversation}"
+             type="preRenderView"></f:event>
+    <f:view renderKitId="PRIMEFACES_MOBILE" />
+    <h:head>
+        <title>ANT-SOLUTION</title>
+        <script type="text/javascript" src="anfora.js"/>
+    </h:head>
+    <h:body onload="fLimpiarLogin()">
+        <h:form id="frmLogin">
+
+            <pm:content>
+                <p:panel header="Validación Usuario" >
+                    <pm:field>
+                        <p:inputText id="musuario"  placeholder="Usuario" value="#{login.nom_usu}" />
+                        <p:password id="mclave"  placeholder="Contraseña" value="#{login.des_pas}" />
+                    </pm:field>
+                    <p:messages showDetail="true" autoUpdate="true" closable="true" />
+                </p:panel>
+                <div align="center">
+                    <p:commandButton icon="ui-icon-check" 
+                                     action="#{login.validausuario()}" 
+                                     onclick="fLocalStore();" 
+                                     update="frmLogin"/>
+                </div>
+
+            </pm:content>
+
+
+        </h:form>
+    </h:body>
+</html>
+

@@ -1,0 +1,166 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pm="http://primefaces.org/mobile"
+      >
+
+    <h:head>
+        <title>ANT - SOLUTION</title>
+        <h:outputStylesheet library="css" name="estilo.css"/>
+        <h:outputStylesheet library="css" name="default.css"/>
+        <h:outputStylesheet library="css" name="component.css"/>
+        <script src="modernizr.custom.js"/>
+        <script type="text/javascript" src="anfora.js"/>
+        <script type="text/javascript" src="es.js"/>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="shortcut icon" href="../favicon.ico"/>
+
+
+    </h:head>
+    <h:body id="mBody">
+
+        <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+
+        <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+            <h:graphicImage value="/resources/images/loading_bar.gif" />
+        </p:dialog>
+
+        <p:layout fullPage="true">
+            <p:layoutUnit position="north" size="330">
+                <div style=" background-color: #89867e; height:100%; ">
+                    <div class="container">	
+                        <div class="main clearfix">
+                            <nav id="menu" class="nav">					
+                                <ul>
+                                    <li>
+                                        <a href="#">
+                                            <span class="icon">
+                                                <i aria-hidden="true" class="icon-home"></i>
+                                            </span>
+                                            <span>Home</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <span class="icon"> 
+                                                <i aria-hidden="true" class="icon-services"></i>
+                                            </span>
+                                            <span>Inventario</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <span class="icon">
+                                                <i aria-hidden="true" class="icon-portfolio"></i>
+                                            </span>
+                                            <span>Facturación</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <span class="icon">
+                                                <i aria-hidden="true" class="icon-blog"></i>
+                                            </span>
+                                            <span>Contabilidad</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <span class="icon">
+                                                <i aria-hidden="true" class="icon-team"></i>
+                                            </span>
+                                            <span>Producción</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <span class="icon">
+                                                <i aria-hidden="true" class="icon-contact"></i>
+                                            </span>
+                                            <span>Contacto</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div><!-- /container -->
+                </div>
+            </p:layoutUnit>
+            <p:layoutUnit position="west" resizable="true" size="300" minSize="40" maxSize="300" collapsible="true">
+                <div style=" background-color: #a4fafa; height:100%;">
+                    <div class="avatar" style="background-image: url(resources/images/user.jpg); position: relative; top:10%;right:0;bottom:0;margin: auto;" ></div>
+
+                    <p:menu style="width: 100%;position: relative; top:15%;right:0;bottom:0;margin: auto;">
+                        <p:submenu label="Tareas">
+                            <p:menuitem value="Mensajes" url="#" />
+                            <p:menuitem value="Pendientes" url="#" />
+                        </p:submenu>
+                        <p:submenu label="Configuración">
+                            <p:menuitem value="Contraseña" url="#" />
+                            <p:menuitem value="Favoritos" url="#" />
+                        </p:submenu>
+                    </p:menu>
+
+                </div>
+
+            </p:layoutUnit>
+            <p:layoutUnit position="center">
+                <iframe id="iframeCenter" 
+                        src="index.xhtml" 
+                        width="100%" 
+                        height="99%"
+                        frameborder="0"
+                        >  
+                </iframe> 
+            </p:layoutUnit>
+
+        </p:layout>
+
+
+
+
+
+
+
+
+        <script>
+            //  The function to change the class
+            var changeClass = function (r, className1, className2) {
+                var regex = new RegExp("(?:^|\\s+)" + className1 + "(?:\\s+|$)");
+                if (regex.test(r.className)) {
+                    r.className = r.className.replace(regex, ' ' + className2 + ' ');
+                } else {
+                    r.className = r.className.replace(new RegExp("(?:^|\\s+)" + className2 + "(?:\\s+|$)"), ' ' + className1 + ' ');
+                }
+                return r.className;
+            };
+
+            //  Creating our button in JS for smaller screens
+            var menuElements = document.getElementById('menu');
+            menuElements.insertAdjacentHTML('afterBegin', '<button type="button" id="menutoggle" class="navtoogle" aria-hidden="true"><i aria-hidden="true" class="icon-menu"> </i> Menu</button>');
+
+            //  Toggle the class on click to show / hide the menu
+            document.getElementById('menutoggle').onclick = function () {
+                changeClass(this, 'navtoogle active', 'navtoogle');
+            }
+
+            // http://tympanus.net/codrops/2013/05/08/responsive-retina-ready-menu/comment-page-2/#comment-438918
+            document.onclick = function (e) {
+                var mobileButton = document.getElementById('menutoggle'),
+                        buttonStyle = mobileButton.currentStyle ? mobileButton.currentStyle.display :
+                        getComputedStyle(mobileButton, null).display;
+
+
+            }
+
+        </script>
+
+    </h:body>
+
+</html>
