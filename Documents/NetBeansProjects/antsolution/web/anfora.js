@@ -8,5 +8,3 @@ function fLocalStore() {
     // Store
     //localStorage.setItem("mcuenta", document.getElementById("frmLogin:mcuenta").value);
 }
-
-

@@ -194,3 +194,5 @@ div.timeline-event-selected {
     background: #BECEFE none !important;  
     border-color: #97B0F8 !important;  
 }  
+
+.mi-top{position:fixed;width:100%;z-index:1}.mi-top{top:0}.w3-bottom{bottom:0}
