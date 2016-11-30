@@ -195,4 +195,4 @@ div.timeline-event-selected {
     border-color: #97B0F8 !important;  
 }  
 
-.mi-top{position:fixed;width:100%;z-index:1}.mi-top{top:0}.w3-bottom{bottom:0}
+.mi-row{width:100%; height: 99%}

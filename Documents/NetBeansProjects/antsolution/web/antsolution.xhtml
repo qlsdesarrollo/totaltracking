@@ -22,6 +22,16 @@
             html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
         </style>
 
+
+
+        <script>
+            function resizeIframe(idIframe) {
+                var miIframe = document.getElementById(idIframe);
+                var alturaPagina = miIframe.contentWindow.document.body.scrollHeight + 20;
+                miIframe.style.height = alturaPagina + "px";
+            }
+        </script>
+
     </h:head>
 
     <h:body id="mBody" class="w3-light-grey">
@@ -73,7 +83,7 @@
 
         <!-- Top container -->
         <div class="w3-container w3-top w3-large w3-padding" style="z-index:4; width: 0px;">
-            <button class="w3-btn w3-hide-medium w3-hover-white w3-theme-d2" style=" height:38px; position:absolute; top: 0;" onclick="w3_open();"><i class="fa fa-caret-square-o-down"></i>  Perfil</button>
+            <button class="w3-btn w3-hide-large w3-hover-white w3-theme-d2" style=" height: 37px; position:absolute; top: 0;" onclick="w3_open();"><i class="fa fa-caret-square-o-down"></i>  Perfil</button>
         </div>
 
         <!-- Sidenav/menu -->
@@ -127,7 +137,7 @@
                             <h3>52</h3>
                         </div>
                         <div class="w3-clear"></div>
-                        <h4>Messages</h4>
+                        <h4>Mensages</h4>
                     </div>
                 </div>
                 <div class="w3-quarter">
@@ -137,7 +147,7 @@
                             <h3>99</h3>
                         </div>
                         <div class="w3-clear"></div>
-                        <h4>Views</h4>
+                        <h4>Vistas</h4>
                     </div>
                 </div>
                 <div class="w3-quarter">
@@ -147,7 +157,7 @@
                             <h3>23</h3>
                         </div>
                         <div class="w3-clear"></div>
-                        <h4>Shares</h4>
+                        <h4>Compartir</h4>
                     </div>
                 </div>
                 <div class="w3-quarter">
@@ -157,23 +167,27 @@
                             <h3>50</h3>
                         </div>
                         <div class="w3-clear"></div>
-                        <h4>Users</h4>
+                        <h4>Usuarios</h4>
                     </div>
                 </div>
             </div>
 
             <div class="w3-container w3-section">
-                <div style=" background-color: #a4fafa; height:100%;">
-                    <div class="avatar" style="background-image: url(resources/images/user.jpg); position: relative; top:10%;right:0;bottom:0;margin: auto;" ></div>
-                </div>
+
 
                 <iframe id="iframeCenter" 
                         src="inventario.xhtml" 
                         width="100%" 
-                        height="99%"
+                        height="0"
                         frameborder="0"
+                        transparency="transparency" 
+                        onload="resizeIframe(this.id);"
                         >  
                 </iframe> 
+                
+               
+
+
                 <div class="w3-row-padding" style="margin:0 -16px">
                     <div class="w3-third">
                         <h5>Regions</h5>
@@ -395,7 +409,7 @@
                 document.getElementById("mySidenav").style.display = "none";
             }
 
-        // Used to toggle the menu on smaller screens when clicking on the menu button
+            // Used to toggle the menu on smaller screens when clicking on the menu button
             function openNav() {
                 var x = document.getElementById("navDemo");
                 if (x.className.indexOf("w3-show") == -1) {
@@ -405,6 +419,7 @@
                 }
             }
         </script>
+        
 
 
     </h:body>
