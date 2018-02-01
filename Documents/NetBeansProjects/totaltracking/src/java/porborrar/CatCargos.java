@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 public class CatCargos implements Serializable{
     
-    private String id_car, des_car;
+    private String id_car, des_car, des_car2;
 
     public CatCargos() {
     }
