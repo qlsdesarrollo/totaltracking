@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="null" pageWidth="396" pageHeight="612" orientation="Landscape" columnWidth="356" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="5" uuid="635cbe5d-ada4-490d-873c-04c0ffcd91fb">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="solicitud" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[select 
+mae.id_mae as Correlativo, 
+date_format(mae.fec_sol,'%d/%m/%Y') as Fecha, 
+usu.det_nom as Solicitante, 
+dep.nom_dep as Departamento, 
+ifnull(mae.det_uso,'') as Uso, 
+ifnull(maq.nom_maq,'') as Maquina, 
+ifnull((select musu.nom_usu from cat_usu as musu where musu.cod_usu = mae.nom_apr),'') as Aprueba, 
+ifnull(mae.det_obs,'') as Observaciones,
+det.id_det as Item, det.des_ite as Descripcion, det.det_can as Cantidad
+FROM mae_sol as mae
+left join det_sol as det on mae.id_mae = det.id_mae
+left join cat_usu as usu on mae.nom_usu = usu.cod_usu
+left join cat_dep as dep on usu.cod_dep = dep.cod_dep
+left join cat_maq as maq on mae.cod_maq = maq.cod_maq
+where mae.id_mae = $P{solicitud}]]>
+	</queryString>
+	<field name="Correlativo" class="java.lang.Integer"/>
+	<field name="Fecha" class="java.lang.String"/>
+	<field name="Solicitante" class="java.lang.String"/>
+	<field name="Departamento" class="java.lang.String"/>
+	<field name="Uso" class="java.lang.String"/>
+	<field name="Maquina" class="java.lang.String"/>
+	<field name="Aprueba" class="java.lang.String"/>
+	<field name="Observaciones" class="java.lang.String"/>
+	<field name="Item" class="java.lang.Integer"/>
+	<field name="Descripcion" class="java.lang.String"/>
+	<field name="Cantidad" class="java.lang.Double"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="103" splitType="Stretch">
+			<textField>
+				<reportElement x="256" y="30" width="100" height="15" uuid="5e2f2f17-b3fb-481a-81c4-2a8efac9c943"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Fecha}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="66" y="46" width="288" height="15" uuid="94189dac-76d4-49f0-8cc3-884d44614a3e"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Departamento}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="66" y="61" width="288" height="15" uuid="e8cc35b5-2cd8-4618-b1bf-1f7e02e3b252"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Maquina}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="66" y="77" width="288" height="15" uuid="a58be887-cb50-43e7-80b5-898bf526c0e7"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Uso}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="19" splitType="Stretch">
+			<textField>
+				<reportElement x="4" y="4" width="34" height="15" uuid="179716e4-e32c-41be-8a0d-ac5e48b05cfd"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Cantidad}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="90" y="4" width="264" height="15" uuid="b453cfca-de46-4d8c-aa2c-cf7d83ad3456"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Descripcion}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="142" splitType="Stretch">
+			<textField isStretchWithOverflow="true">
+				<reportElement x="0" y="18" width="355" height="15" uuid="00479a29-dd22-4336-9756-2c057fc6329b"/>
+				<textElement textAlignment="Justified">
+					<font size="10"/>
+					<paragraph lineSpacing="Double"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Observaciones}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

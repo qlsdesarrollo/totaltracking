@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="fichamanequipo_SR_fallas" pageWidth="572" pageHeight="752" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="02d66e3b-7ba9-4470-9b06-f161bc3335f6">
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="codequipo" class="java.lang.String"/>
+	<parameter name="codman" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[select
+fal.det_man as itemfal, gfal.nom_gru_fal as grupofal, cfal.nom_fal as nombrefal, fal.det_obs as observfal
+from tbl_det_man_fal as fal 
+left join cat_gru_fal as gfal on fal.cod_gru_fal = gfal.cod_gru_fal
+left join cat_fal as cfal on fal.cod_gru_fal = cfal.cod_gru_fal and fal.cod_fal = cfal.cod_fal
+where fal.cod_lis_equ = $P{codequipo} and fal.cod_man = $P{codman}]]>
+	</queryString>
+	<field name="itemfal" class="java.lang.Integer"/>
+	<field name="grupofal" class="java.lang.String"/>
+	<field name="nombrefal" class="java.lang.String"/>
+	<field name="observfal" class="java.lang.String"/>
+	<group name="Grupofallas">
+		<groupExpression><![CDATA[$F{grupofal}]]></groupExpression>
+		<groupHeader>
+			<band height="13">
+				<staticText>
+					<reportElement mode="Opaque" x="0" y="0" width="572" height="13" backcolor="#CCCCCC" uuid="db98f1f5-9023-4ef5-88c0-001f35ef1d21"/>
+					<box leftPadding="2">
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="0.5"/>
+						<leftPen lineWidth="0.5"/>
+						<bottomPen lineWidth="0.5"/>
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement>
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Failure]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="13" splitType="Stretch">
+			<rectangle>
+				<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="572" height="13" forecolor="#CCCCCC" backcolor="#EDEDED" uuid="f5a3e333-3ae0-4622-87b0-567ddcff58d7">
+					<printWhenExpression><![CDATA[new Boolean($V{REPORT_COUNT}.intValue() % 2 == 0)]]></printWhenExpression>
+				</reportElement>
+			</rectangle>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="572" height="13" uuid="3c447316-9e2a-43c6-b64a-3650009c489a"/>
+				<box leftPadding="2">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{grupofal}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

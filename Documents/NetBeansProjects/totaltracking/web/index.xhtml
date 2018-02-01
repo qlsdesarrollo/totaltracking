@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui" 
+      >
+    <f:event listener="#{login.initConversation}"
+             type="preRenderView"></f:event>
+    <h:head>
+        <title>TOTAL TRACKING</title>
+        <link rel="stylesheet" href="/totaltracking/resources/css/login.css"/>
+        <script type="text/javascript" src="anfora.js"/>
+    </h:head>
+    <h:body onload="fLimpiarLogin()">
+        <section class="contenedorLogin">
+            <h:form id="frmLogin"  class="formulario" onreset="fLimpiarLogin()">
+                <p:growl id="msgloginconta" showDetail="true" life="4500"/>
+                <h2>Acceso de Usuario</h2>
+                <p>Rellene el siguiente formulario para <span id="IL_AD1" class="IL_AD">ingresar</span> al sistema </p>
+                <p><h:inputText id="musuario" pt:placeholder="Usuario" value="#{login.nom_usu}" /></p>
+                <p><h:inputSecret id="mclave"  pt:placeholder="Contraseña" value="#{login.des_pas}" /></p>
+                <h:messages infoStyle="color: blue;list-style:none;" errorStyle="color:red;list-style:none;"/>
+                <section class="seccionBotones">
+                    <p:commandButton value="Ingresar" 
+                                     action="#{login.validausuario()}" 
+                                     onclick="fLocalStore();" 
+                                     update="frmLogin"/>
+                </section>
+            </h:form>
+        </section>
+
+        <p:dialog  id="dlgPassword" widgetVar="wPassword" modal="true" 
+                   width="360" height="200" closable="false" resizable="false" 
+                   header="Change Password" rendered="true" 
+                   dynamic="true" visible="false"
+                   >
+
+            <h:form id="frmPassword">
+                <p:growl id="msgloginpass" showDetail="true" life="8500"/>
+                <p:panel>
+                    <h:panelGrid columns="1">
+                        <h:outputText value="New Password" style="font-weight:bold;"/>
+                        <p:password value="#{login.newpass}" size="20"/>
+                        <h:outputText value="Confirm Password" style="font-weight:bold;"/>
+                        <p:password value="#{login.confirmpass}" size="20"/>
+                    </h:panelGrid>
+                </p:panel>
+                <div align="center">
+                    <h:panelGrid columns="2">
+                        <p:commandButton value="Save" icon="ui-icon-disk" style="width: 120px;" actionListener="#{login.guardarcambiopass()}" update=":frmPassword" />
+                        <p:commandButton value="Cancel" icon="ui-icon-close" style="width: 120px;" actionListener="#{login.cancelarcambiopass()}" update=":frmPassword" />
+                    </h:panelGrid>
+                </div>
+            </h:form>
+        </p:dialog>
+    </h:body>
+</html>
+

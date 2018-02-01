@@ -1,0 +1,2097 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Almacén código</title>
+        <h:outputStylesheet library="css" name="estilo.css"/>
+        <script type="text/javascript" src="anfora.js"/>
+
+    </h:head>
+    <h:body id="mBody" >
+        
+        
+          <!--******************************************************************** 
+        ********************* Pantalla Nueva Requisición ***********************
+        *********************************************************************-->
+
+        <p:dialog  id="dlgReq" widgetVar="wReq" modal="true" 
+                   width="800" height="480" closable="false" resizable="false" 
+                   header="Crear Requisición" rendered="true" 
+                   dynamic="false" visible="false" 
+                   >
+
+            <h:form id="frmReq"> 
+                <p:growl id="msgReq" showDetail="true" life="4500"/>
+                <p:toolbar>
+                    <f:facet name="left">
+                        <p:commandButton value="Nuevo" style=" width: 100px;"
+                                         actionListener="#{manRequisicionNueva.nuevo()}"
+                                         update=":frmReq"
+                                         icon="ui-icon-document"
+                                         />
+                        <p:commandButton value="Guardar" style=" width: 100px;"
+                                         actionListener="#{manRequisicionNueva.guardar()}"
+                                         update=":frmReq"
+                                         icon="ui-icon-disk"
+                                         > 
+                            <p:confirm header="Guardar Registro" 
+                                       message="¿Realmente desea Guardar este Registro?" 
+                                       icon="ui-icon-alert"/>
+                        </p:commandButton>
+                        <p:commandButton value="Modificar" style=" width: 100px;"
+                                         onclick="PF('wSearchReq').show()"
+                                         actionListener="#{manRequisicionNueva.iniciarventanasearch()}"
+                                         update=":frmSearchReq"
+                                         icon="ui-icon-search"
+                                         />
+
+
+                    </f:facet>
+                    <f:facet name="right">
+                        <p:commandButton value="Cerrar" style=" width: 100px;"
+                                         onclick="PF('wReq').hide()"
+                                         actionListener="#{manRequisicionNueva.cerrarventana()}"
+                                         update=":frmReq"
+                                         icon="ui-icon-close"
+                                         />
+                    </f:facet>
+
+                </p:toolbar>
+                <p:tabView activeIndex="#{manRequisicionNueva.tabindex}">
+                    <p:ajax event="tabChange" listener="#{manRequisicionNueva.onTabChange}" />
+                    <p:tab id="tabgenreq" title="General">
+                        <div style=" background-color: #cdfff0;">
+                            <p:focus for="fecingreq" />
+                            <h:panelGrid columns="4" cellpadding="5">
+                                <h:outputText value="Fecha" style="font-weight:bold;"/>
+                                <h:outputText value="Solicitante" style="font-weight:bold;"/>
+                                <h:outputText value="País" style="font-weight:bold;"/>
+                                <h:outputText value="Departamento" style="font-weight:bold;"/>
+                                <p:calendar  pattern="dd/MM/yyyy" locale="es" id="fecingreq"
+                                             readonlyInput="true" 
+                                             showOn="button" size="16"
+                                             value="#{manRequisicionNueva.mfecha}"
+                                             >
+                                    <p:ajax event="dateSelect" listener="#{manRequisicionNueva.dateSelected}" />
+                                </p:calendar> 
+                                <p:selectOneMenu value="#{manRequisicionNueva.cod_usu_sol}" 
+                                                 style="width:160px;text-align:right;"
+                                                 immediate="false"
+                                                 disabled="#{manSeguridad.disableOpt('comboSolicitanteReq')}"  
+                                                 >  
+                                    <f:selectItem itemLabel="Ninguno" itemValue="0" />  
+                                    <f:selectItems value="#{manRequisicionNueva.usuarios}" var="reqususol"
+                                                   itemLabel="#{reqususol.det_nom}" itemValue="#{reqususol.cod_usu}"/>
+                                </p:selectOneMenu>
+                                <p:selectOneMenu value="#{manRequisicionNueva.cod_pai}" 
+                                                 style="width:140px;text-align:right;"
+                                                 immediate="false"
+                                                 disabled="#{manSeguridad.disableOpt('comboPaisReq')}"  
+                                                 >  
+                                    <p:ajax event="change" listener="#{manRequisicionNueva.onChangePais()}" 
+                                            update="somdepreq,somequreq"/>
+                                    <f:selectItem itemLabel="Ninguno" itemValue="0" />  
+                                    <f:selectItems value="#{manRequisicionNueva.paises}" var="reqpai"
+                                                   itemLabel="#{reqpai.nom_pai}" itemValue="#{reqpai.cod_pai}"/>
+                                </p:selectOneMenu>
+                                <p:selectOneMenu value="#{manRequisicionNueva.cod_dep}" 
+                                                 style="width:140px;text-align:right;"
+                                                 immediate="false"
+                                                 disabled="#{manSeguridad.disableOpt('comboDepartamentoReq')}"  
+                                                 id="somdepreq"
+                                                 >  
+                                    <f:selectItem itemLabel="Ninguno" itemValue="0" />  
+                                    <f:selectItems value="#{manRequisicionNueva.departamentos}" var="movDepreq"
+                                                   itemLabel="#{movDepreq.nom_dep}" itemValue="#{movDepreq.cod_dep}"/>
+                                </p:selectOneMenu>
+
+                                <h:outputText value="Equipo" style="font-weight:bold;"/>
+                                <h:outputText value="Uso" style="font-weight:bold;"/>
+                                <h:outputText value="" style="font-weight:bold;"/>
+                                <h:outputText value="" style="font-weight:bold;"/>
+                                <p:selectOneMenu value="#{manRequisicionNueva.cod_maq}" 
+                                                 style="width:160px;text-align:right;"
+                                                 immediate="false"
+                                                 id="somequreq"
+                                                 filter="true"
+                                                 filterMatchMode="contains"
+                                                 >  
+                                    <f:selectItem itemLabel="No Aplica" itemValue="0" />  
+                                    <f:selectItems value="#{manRequisicionNueva.equipos}" var="reqmaq"
+                                                   itemLabel="#{reqmaq.num_ser} - #{reqmaq.nomequ}" itemValue="#{reqmaq.cod_lis_equ}"/>
+                                </p:selectOneMenu>
+
+                                <p:inputText size="25"
+                                             maxlength="75"
+                                             value="#{manRequisicionNueva.det_uso}"
+                                             onfocus="this.select()"
+                                             />
+                            </h:panelGrid>
+
+                            <h:panelGrid columns="1" cellpadding="5">
+                                <h:outputText value="Observaciones " style="font-weight:bold;"/>
+                                <p:inputTextarea rows="2"
+                                                 cols="105"
+                                                 maxlength="150"
+                                                 value="#{manRequisicionNueva.det_obs}"
+                                                 onfocus="this.select()"
+                                                 />
+                            </h:panelGrid>
+                        </div>
+                    </p:tab>
+
+                    <p:tab  id="tabdetreq" title="Detalle">
+                        <div style=" background-color: #ebf8fe;">
+
+                            <h:panelGrid columns="3" cellpadding="5">
+                                <h:outputText value="Cantidad" style="font-weight:bold;"/>
+                                <h:outputText value="Código Pieza" style="font-weight:bold;"/>
+                                <p:commandButton icon="ui-icon-arrowthick-1-n" 
+                                                 title="Remover Detalle" 
+                                                 style=" width: 18px; height: 20px;" 
+                                                 actionListener="#{manRequisicionNueva.eliminardetalle()}" 
+                                                 update=":frmReq:dtReq,:frmReq:msgReq,canitemreq"/>
+                                <p:inputText size="9"
+                                             maxlength="11"
+                                             value="#{manRequisicionNueva.det_det_can_sol}"
+                                             onfocus="this.select()"
+                                             id="canitemreq"
+                                             />
+                                <p:selectOneMenu value="#{manRequisicionNueva.det_cod_ite}" 
+                                                 style="width:570px;text-align:right;"
+                                                 immediate="false"
+                                                 id="somitereq"
+                                                 filter="true"
+                                                 filterMatchMode="contains"
+                                                 >
+                                    <f:selectItem  itemLabel="Ninguna" itemValue="0" />
+                                    <f:selectItems value="#{manRequisicionNueva.piezas}" var="reqpie"
+                                                   itemLabel="#{reqpie.cod_ref} - #{reqpie.nom_pie}" itemValue="#{reqpie.cod_pie}"/>
+                                </p:selectOneMenu>
+                                <p:commandButton icon="ui-icon-arrowthick-1-s" 
+                                                 title="Agregar Detalle" 
+                                                 style=" width: 18px; height: 20px;" 
+                                                 actionListener="#{manRequisicionNueva.agregardetalle()}"
+                                                 update=":frmReq:dtReq,:frmReq:msgReq,canitemreq"
+                                                 />
+                            </h:panelGrid>
+                        </div>
+                    </p:tab>
+                </p:tabView>
+                <p:panel>
+                    <p:dataTable id="dtReq" var="vReq" 
+                                 value="#{manRequisicionNueva.detalles}" 
+                                 emptyMessage="No se encontraron resultados" 
+                                 selectionMode="single" 
+                                 selection="#{manRequisicionNueva.catdetalles}" 
+                                 rowKey="#{vReq.cod_det}"
+                                 editable="false" 
+                                 style="width:740px"
+                                 scrollable="true"
+                                 scrollHeight="120"
+                                 >
+                        <p:ajax event="rowSelect" listener="#{manRequisicionNueva.onRowSelect}" 
+                                update=":frmReq"/>
+                        <p:ajax event="rowUnselect"/>
+
+                        <p:column style="width:90px;" headerText="País">
+                            <h:outputText value="#{vReq.nompai}" />
+                        </p:column>
+                        <p:column style="width:50px;" headerText="Cantidad">
+                            <h:outputText value="#{vReq.det_can_sol}" />
+                        </p:column>
+                        <p:column style="width:230px" headerText="Descripción Item">
+                            <h:outputText value="#{vReq.des_ite}" />
+                        </p:column>
+
+                    </p:dataTable>
+                </p:panel>
+
+            </h:form>
+        </p:dialog>
+
+        <p:dialog  id="dlgSearchReq" widgetVar="wSearchReq" modal="true" 
+                   width="770" height="300" closable="false" resizable="false" 
+                   header="Buscar Requisición" rendered="true" 
+                   dynamic="false" visible="false" 
+                   >
+
+            <h:form id="frmSearchReq"> 
+                <p:growl id="msgSearchReq" showDetail="true" life="4500"/>
+                <p:toolbar>
+                    <f:facet name="right">
+                        <p:commandButton value="Cerrar" style=" width: 100px;"
+                                         onclick="PF('wSearchReq').hide()"
+                                         actionListener="#{manRequisicionNueva.cerrarventanasearch()}"
+                                         update=":frmSearchReq"
+                                         icon="ui-icon-close"
+                                         />
+                    </f:facet>
+                </p:toolbar>
+                <p:panel>
+                    <p:dataTable id="dtSearchReq" var="vSearchReq" 
+                                 value="#{manRequisicionNueva.maestro}" 
+                                 emptyMessage="No se encontraron resultados" 
+                                 selectionMode="single" 
+                                 selection="#{manRequisicionNueva.catmaestro}" 
+                                 rowKey="#{vSearchReq.cod_mae}"
+                                 editable="false" 
+                                 scrollable="true"
+                                 scrollHeight="200" 
+                                 style="width:720px"
+                                 >
+                        <p:ajax event="rowSelect" listener="#{manRequisicionNueva.onRowSelectsearch}" 
+                                update=":frmSearchReq"/>
+
+
+                        <p:column style="width:60px;" headerText="Fecha">
+                            <h:outputText value="#{vSearchReq.fec_sol}" />
+                        </p:column>
+                        <p:column style="width:30px;" headerText="Código">
+                            <h:outputText value="#{vSearchReq.cod_mae}" />
+                        </p:column>
+                        <p:column style="width:140px" headerText="Departamento">
+                            <h:outputText value="#{vSearchReq.nomdep}" />
+                        </p:column>
+                        <p:column style="width:140px" headerText="Equipo">
+                            <h:outputText value="#{vSearchReq.nommaq}" />
+                        </p:column>
+                        <p:column style="width:100px" headerText="Uso">
+                            <h:outputText value="#{vSearchReq.det_uso}" />
+                        </p:column>
+                    </p:dataTable>
+                </p:panel>
+            </h:form>
+        </p:dialog>
+
+        <!--******************************************************************** 
+        ******************* Pantalla Estado Requisición ************************
+        *********************************************************************-->
+
+        <p:dialog  id="dlgEstadoReq" widgetVar="wEstadoReq" modal="true" 
+                   width="840" height="460" closable="false" resizable="false" 
+                   header="Estado Requisición" rendered="true" 
+                   dynamic="false" visible="false" 
+                   >
+
+            <h:form id="frmEstadoReq"> 
+                <p:growl id="msgEstadoReq" showDetail="true" life="4500"/>
+                <p:toolbar>
+                    <f:facet name="left">
+                        <p:commandButton value="Actualizar" style=" width: 100px;"
+                                         actionListener="#{manRequisicionEstado.iniciarventana()}"
+                                         update=":frmEstadoReq"
+                                         icon="ui-icon-refresh"
+                                         /> 
+                        <p:commandButton value="Eliminar" style=" width: 100px;"
+                                         actionListener="#{manRequisicionEstado.eliminar()}"
+                                         update=":frmEstadoReq"
+                                         icon="ui-icon-trash"
+                                         > 
+                            <p:confirm header="Eliminar Registro" 
+                                       message="¿Realmente desea Eliminar este Registro?" 
+                                       icon="ui-icon-alert"/>
+                        </p:commandButton>
+
+                        <p:commandButton value="Cerrar" style=" width: 100px;"
+                                         onclick="PF('wEstadoReq').hide()"
+                                         actionListener="#{manRequisicionEstado.cerrarventana()}"
+                                         update=":frmEstadoReq"
+                                         icon="ui-icon-close"
+                                         />
+
+                    </f:facet>
+
+                </p:toolbar>
+
+                <p:panel>
+                    <p:dataTable id="dtEstadoReq" var="vEstadoReq" 
+                                 value="#{manRequisicionEstado.maestro}" 
+                                 emptyMessage="No se encontraron resultados" 
+                                 selectionMode="single" 
+                                 selection="#{manRequisicionEstado.catmaestro}" 
+                                 rowKey="#{vEstadoReq.cod_mae}"
+                                 editable="false" 
+                                 style="width:790px"
+                                 scrollable="true"
+                                 scrollHeight="120"
+                                 >
+
+                        <p:ajax event="rowSelect" listener="#{manRequisicionEstado.onRowSelect}" 
+                                update=":frmEstadoReq"/>
+                        <p:ajax event="rowUnselect" listener="#{manRequisicionEstado.onRowUnselect}" 
+                                update=":frmEstadoReq"/>
+
+                        <p:column style="width:40px;" headerText="Código">
+                            <h:outputText value="#{vEstadoReq.cod_mae}" />
+                        </p:column>
+                        <p:column style="width:60px;" headerText="Fecha">
+                            <h:outputText value="#{vEstadoReq.fec_sol}" />
+                        </p:column>
+                        <p:column style="width:120px" headerText="Departamento">
+                            <h:outputText value="#{vEstadoReq.nomdep}" />
+                        </p:column>
+                        <p:column style="width:120px" headerText="Equipo">
+                            <h:outputText value="#{vEstadoReq.nommaq}" />
+                        </p:column>
+                        <p:column style="width:160px;" headerText="Uso">
+                            <h:outputText value="#{vEstadoReq.det_uso}" />
+                        </p:column>
+                        <p:column style="width:130px" headerText="Estado">
+                            <h:outputText value="#{vEstadoReq.det_sta}" />
+                        </p:column>
+                    </p:dataTable>
+                </p:panel>
+
+
+                <p:panel>
+                    <p:dataTable id="dtEstadoDetReq" var="vEsDetReq" 
+                                 value="#{manRequisicionEstado.detalles}" 
+                                 emptyMessage="No se encontraron resultados" 
+                                 selectionMode="single" 
+                                 selection="#{manRequisicionEstado.catdetalles}" 
+                                 rowKey="#{vEsDetReq.cod_det}"
+                                 editable="false" 
+                                 style="width:790px"
+                                 scrollable="true"
+                                 scrollHeight="200"
+                                 >
+
+                        <p:column style="width:30px;" headerText="Can.Solic.">
+                            <h:outputText value="#{vEsDetReq.det_can_sol}" />
+                        </p:column>
+                        <p:column style="width:30px;" headerText="Can.Entreg.">
+                            <h:outputText value="#{vEsDetReq.det_can_ent}" />
+                        </p:column>
+                        <p:column style="width:30px;" headerText="Can.Pend.">
+                            <h:outputText value="#{vEsDetReq.det_can_pen}" />
+                        </p:column>
+                        <p:column style="width:250px" headerText="Descripción Item">
+                            <h:outputText value="#{vEsDetReq.des_ite}" />
+                        </p:column>
+                        <p:column style="width:100px" headerText="Estado">
+                            <h:outputText value="#{vEsDetReq.det_sta}" />
+                        </p:column>
+
+                    </p:dataTable>
+                </p:panel>
+
+            </h:form>
+        </p:dialog>
+
+        <!--******************************************************************** 
+        ***************** Pantalla Seguimiento Requisiciones *******************
+        *********************************************************************-->
+
+        <p:dialog  id="dlgSeguimientoReq" widgetVar="wSeguimientoReq" modal="true" 
+                   width="900" height="480" closable="false" resizable="false" 
+                   header="Seguimiento de Requisición" rendered="true" 
+                   dynamic="false" visible="false" 
+                   >
+
+            <h:form id="frmSeguimientoReq"> 
+                <p:growl id="msgSeguimientoReq" showDetail="true" life="4500"/>
+                <p:tabView id="tabseguimientoreq" activeIndex="#{manRequisicionSeguimiento.tabindex}">
+                    <p:ajax event="tabChange" listener="#{manRequisicionSeguimiento.onTabChange}" />
+                    <p:tab id="tabSegReq" title="Seguimiento">
+                        <p:toolbar>
+                            <f:facet name="left">
+                                <p:commandButton value="Guardar" style=" width: 100px;"
+                                                 actionListener="#{manRequisicionSeguimiento.guardar()}"
+                                                 update=":frmSeguimientoReq"
+                                                 icon="ui-icon-disk"
+                                                 disabled="#{manSeguridad.disableOpt('botonSeguimientoReqGuardar')}"
+                                                 > 
+                                    <p:confirm header="Guardar Registro" 
+                                               message="¿Realmente desea Guardar los cambios realizados?" 
+                                               icon="ui-icon-alert"/>
+                                </p:commandButton>
+
+                                <p:commandButton value="Actualizar" style=" width: 100px;"
+                                                 actionListener="#{manRequisicionSeguimiento.refrescarventana()}"
+                                                 update=":frmSeguimientoReq"
+                                                 icon="ui-icon-refresh"
+                                                 /> 
+
+                                <p:commandButton value="Cerrar" style=" width: 100px;"
+                                                 onclick="PF('wSeguimientoReq').hide()"
+                                                 actionListener="#{manRequisicionSeguimiento.cerrarventana()}"
+                                                 update=":frmSeguimientoReq"
+                                                 icon="ui-icon-close"
+                                                 />
+
+                            </f:facet>
+                        </p:toolbar>
+
+                        <p:panel>
+                            <p:dataTable id="dtSeguiReq" var="vSeguiReq" 
+                                         value="#{manRequisicionSeguimiento.maestro}" 
+                                         emptyMessage="No se encontraron resultados" 
+                                         selectionMode="single" selection="#{manRequisicionSeguimiento.catmaestro}" 
+                                         rowKey="#{vSeguiReq.cod_mae}"
+                                         editable="false" 
+                                         style="width:800px;"
+                                         scrollable="true"
+                                         scrollHeight="110"
+                                         >
+                                <p:ajax event="rowSelect" listener="#{manRequisicionSeguimiento.onRowSelect}" 
+                                        update=":frmSeguimientoReq:tabseguimientoreq:dtSeguiDetReq" />
+                                <p:ajax event="rowUnselect" listener="#{manRequisicionSeguimiento.onRowUnselect}" 
+                                        update=":frmSeguimientoReq:tabseguimientoreq:dtSeguiDetReq" />
+
+                                <p:column style="width:40px;" headerText="Código">
+                                    <h:outputText value="#{vSeguiReq.cod_mae}" />
+                                </p:column>
+                                <p:column style="width:60px;" headerText="Fecha">
+                                    <h:outputText value="#{vSeguiReq.fec_sol}" />
+                                </p:column>
+                                <p:column style="width:70px;" headerText="País">
+                                    <h:outputText value="#{vSeguiReq.nompai}" />
+                                </p:column>
+                                <p:column style="width:100px" headerText="Solicitante">
+                                    <h:outputText value="#{vSeguiReq.nomusu}" />
+                                </p:column>
+                                <p:column style="width:100px" headerText="Departamento">
+                                    <h:outputText value="#{vSeguiReq.nomdep}" />
+                                </p:column>
+                                <p:column style="width:110px" headerText="Equipo">
+                                    <h:outputText value="#{vSeguiReq.nommaq}" />
+                                </p:column>
+                                <p:column style="width:70px" headerText="Uso">
+                                    <h:outputText value="#{vSeguiReq.det_uso}" />
+                                </p:column>
+                                <p:column style="width:70px" headerText="Estado">
+                                    <h:outputText value="#{vSeguiReq.det_sta}" />
+                                </p:column>
+                            </p:dataTable>
+                        </p:panel>
+                        <p:panel>
+                            <h:panelGrid columns="4" cellpadding="5">
+                                <h:outputText value="Recibida por:" style="font-weight:bold;"/>
+                                <p:selectOneMenu value="#{manRequisicionSeguimiento.recibidapor}" 
+                                                 style="width:220px;text-align:right;"
+                                                 immediate="false"
+                                                 >
+                                    <f:selectItem  itemLabel="Ninguno" itemValue="0" />
+                                    <f:selectItems value="#{manRequisicionSeguimiento.recibidores}" var="segrecibiReq"
+                                                   itemLabel="#{segrecibiReq.det_nom}" itemValue="#{segrecibiReq.cod_usu}"/>
+                                </p:selectOneMenu>
+                                <h:outputText value="Fecha:" style="font-weight:bold;"/>
+                                <p:calendar  pattern="dd/MM/yyyy" locale="es" id="fecreciReq"
+                                             readonlyInput="true" 
+                                             showOn="button" size="16"
+                                             value="#{manRequisicionSeguimiento.mfecha}"
+                                             >
+                                    <p:ajax event="dateSelect" listener="#{manRequisicionSeguimiento.dateCieSelected}" />
+                                </p:calendar> 
+                            </h:panelGrid>
+                        </p:panel>
+                        <p:panel>
+                            <p:dataTable id="dtSeguiDetReq" var="vSeguiDetReq" 
+                                         value="#{manRequisicionSeguimiento.detalles}" 
+                                         emptyMessage="No se encontraron resultados" 
+
+                                         rowKey="#{vSeguiDetReq.cod_det}"
+                                         editable="true" 
+                                         style="width:800px;"
+                                         scrollable="true"
+                                         scrollHeight="150"
+                                         editMode="cell"
+                                         >
+                                <p:ajax event="rowEdit" listener="#{manRequisicionSeguimiento.onRowEdit}" 
+                                        update=":frmSeguimientoReq:msgSeguimientoReq"/>
+                                <p:ajax event="rowEditCancel" listener="#{manRequisicionSeguimiento.onRowCancel}" 
+                                        update=":frmSeguimientoReq:msgSeguimientoReq" />
+                                <p:ajax event="cellEdit" listener="#{manRequisicionSeguimiento.onCellEdit}" 
+                                        update=":frmSeguimientoReq:msgSeguimientoReq, :frmSeguimientoReq:tabseguimientoreq:dtSeguiDetReq"/>
+
+
+                                <p:column style="width:50px;" headerText="Bodega">
+                                    <h:outputText value="#{vSeguiDetReq.nombod}" />
+                                </p:column>
+                                <p:column style="width:50px;" headerText="Ubicación">
+                                    <h:outputText value="#{vSeguiDetReq.nomubi}" />
+                                </p:column>
+                                <p:column style="width:30px;" headerText="C.Sol.">
+                                    <h:outputText value="#{vSeguiDetReq.det_can_sol}" />
+                                </p:column>
+                                <p:column style="width:30px; background-color: #fcf3a6;" headerText="C.Ent.">
+                                    <p:cellEditor>
+                                        <f:facet name="output"><h:outputText value="#{vSeguiDetReq.det_can_ent}" /></f:facet>
+                                        <f:facet name="input"><h:inputText value="#{vSeguiDetReq.det_can_ent}" style="width: 90%;" /> </f:facet>
+                                    </p:cellEditor>
+                                </p:column>
+                                <p:column style="width:30px;" headerText="C.Pen.">
+                                    <h:outputText value="#{vSeguiDetReq.det_can_pen}" />
+                                </p:column>
+                                <p:column style="width:190px" headerText="Descripción Item">
+                                    <h:outputText value="#{vSeguiDetReq.des_ite}" />
+                                </p:column>
+                                <p:column style="width:80px; background-color: #fcf3a6;" headerText="Estado">
+                                    <p:cellEditor>
+                                        <f:facet name="output"><h:outputText value="#{vSeguiDetReq.det_sta}"/></f:facet>
+                                        <f:facet name="input">
+                                            <h:selectOneMenu value="#{vSeguiDetReq.det_sta}" style="width:90%">
+                                                <f:selectItem itemLabel="PENDIENTE" itemValue="PENDIENTE" />
+                                                <f:selectItem itemLabel="ENTREGA PARCIAL" itemValue="ENTREGA PARCIAL" />
+                                                <f:selectItem itemLabel="ENTREGADO" itemValue="ENTREGADO" />
+                                                <f:selectItem itemLabel="CANCELADO" itemValue="CANCELADO" />
+                                            </h:selectOneMenu>
+                                        </f:facet>
+                                    </p:cellEditor>
+                                </p:column>
+
+                            </p:dataTable>
+                        </p:panel>
+                    </p:tab>
+                    <p:tab id="tabAproReq" title="Aprobaciones" disabled="#{manSeguridad.disableOpt('TabAprobacionesReq')}" >
+                        <p:toolbar>
+                            <f:facet name="left">
+                                <p:commandButton value="Aprobar" style=" width: 100px;"
+                                                 actionListener="#{manRequisicionSeguimiento.aprobar()}"
+                                                 update=":frmSeguimientoReq"
+                                                 icon="ui-icon-circle-check"
+                                                 disabled="#{manSeguridad.disableOpt('botonSeguimientoReqAprobar')}"
+                                                 > 
+                                    <p:confirm header="Aprobación de Requisición" 
+                                               message="¿Realmente desea Aprobar esta Requisición?" 
+                                               icon="ui-icon-alert"/>
+                                </p:commandButton>
+                                <p:commandButton value="Denegar" style=" width: 100px;"
+                                                 actionListener="#{manRequisicionSeguimiento.rechazar()}"
+                                                 update=":frmSeguimientoReq"
+                                                 icon="ui-icon-circle-close"
+                                                 disabled="#{manSeguridad.disableOpt('botonSeguimientoReqDenegar')}"
+                                                 > 
+                                    <p:confirm header="Aprobación de Requisición" 
+                                               message="¿Realmente desea Denegar esta Requisición?" 
+                                               icon="ui-icon-alert"/>
+                                </p:commandButton>
+
+                                <p:commandButton value="Actualizar" style=" width: 100px;"
+                                                 actionListener="#{manRequisicionSeguimiento.refrescarventana()}"
+                                                 update=":frmSeguimientoReq"
+                                                 icon="ui-icon-refresh"
+                                                 />
+                                <p:commandButton value="Recodificar" 
+                                                 style=" width: 100px;"
+                                                 actionListener="#{manRequisicionSeguimiento.limpiar()}"
+                                                 update=":frmCodImpReq"
+                                                 icon="ui-icon-transferthick-e-w"
+                                                 disabled="#{manSeguridad.disableOpt('botonSeguimientoReqRecodificar')}"
+                                                 />
+                                <p:commandButton value="Cerrar" style=" width: 100px;"
+                                                 onclick="PF('wSeguimientoReq').hide()"
+                                                 actionListener="#{manRequisicionSeguimiento.cerrarventana()}"
+                                                 update=":frmSeguimientoReq"
+                                                 icon="ui-icon-close"
+                                                 />
+
+
+                            </f:facet>
+                            <f:facet name="right">
+                                <h:outputText value="Aprobada por:&nbsp;&nbsp;" style="font-weight:bold;"/>
+                                <p:selectOneMenu value="#{manRequisicionSeguimiento.aprobador}" 
+                                                 style="width:180px;text-align:right;"
+                                                 immediate="false"
+                                                 disabled="#{manSeguridad.disableOpt('comboAprobadaPorReq')}" 
+                                                 >
+                                    <f:selectItem  itemLabel="Ninguno" itemValue="0" />
+                                    <f:selectItems value="#{manRequisicionSeguimiento.aprobadores}" var="segaproReq"
+                                                   itemLabel="#{segaproReq.det_nom}" itemValue="#{segaproReq.cod_usu}"/>
+                                </p:selectOneMenu>
+                            </f:facet>
+
+
+                        </p:toolbar>
+
+                        <p:panel>
+                            <p:dataTable id="dtSeguiAprReq" var="vSeguiAprReq" 
+                                         value="#{manRequisicionSeguimiento.maestroaprobar}" 
+                                         emptyMessage="No se encontraron resultados" 
+                                         selectionMode="single" selection="#{manRequisicionSeguimiento.catmaestroaprobar}" 
+                                         rowKey="#{vSeguiAprReq.cod_mae}"
+                                         editable="false" 
+                                         style="width:800px;"
+                                         scrollable="true"
+                                         scrollHeight="120"
+                                         >
+                                <p:ajax event="rowSelect" listener="#{manRequisicionSeguimiento.onRowAprobarSelect}" 
+                                        update=":frmSeguimientoReq:tabseguimientoreq:dtSeguiDetAprReq"/>
+                                <p:ajax event="rowUnselect" listener="#{manRequisicionSeguimiento.onRowAprobarUnselect}" 
+                                        update=":frmSeguimientoReq:tabseguimientoreq:dtSeguiDetAprReq"/>
+
+                                <p:column style="width:40px;" headerText="Código">
+                                    <h:outputText value="#{vSeguiAprReq.cod_mae}" />
+                                </p:column>
+                                <p:column style="width:70px;" headerText="Fecha">
+                                    <h:outputText value="#{vSeguiAprReq.fec_sol}" />
+                                </p:column>
+                                <p:column style="width:90px;" headerText="País">
+                                    <h:outputText value="#{vSeguiAprReq.nompai}" />
+                                </p:column>
+                                <p:column style="width:110px" headerText="Solicitante">
+                                    <h:outputText value="#{vSeguiAprReq.nomusu}" />
+                                </p:column>
+                                <p:column style="width:110px" headerText="Departamento">
+                                    <h:outputText value="#{vSeguiAprReq.nomdep}" />
+                                </p:column>
+                                <p:column style="width:120px" headerText="Equipo">
+                                    <h:outputText value="#{vSeguiAprReq.nommaq}" />
+                                </p:column>
+                                <p:column style="width:70px" headerText="Uso">
+                                    <h:outputText value="#{vSeguiAprReq.det_uso}" />
+                                </p:column>
+                            </p:dataTable>
+                        </p:panel>
+                        <p:panel>
+                            <p:dataTable id="dtSeguiDetAprReq" var="vSeguiDetAprReq" 
+                                         value="#{manRequisicionSeguimiento.detallesaprobar}" 
+                                         emptyMessage="No se encontraron resultados" 
+                                         selectionMode="single" 
+                                         selection="#{manRequisicionSeguimiento.catdetallesaprobar}" 
+                                         rowKey="#{vSeguiDetAprReq.cod_det}"
+                                         editable="false" 
+                                         style="width:800px;"
+                                         scrollable="true"
+                                         scrollHeight="180"
+                                         >
+
+                                <p:column style="width:50px;" headerText="Bodega">
+                                    <h:outputText value="#{vSeguiDetAprReq.nombod}" />
+                                </p:column>
+                                <p:column style="width:50px;" headerText="Ubicación">
+                                    <h:outputText value="#{vSeguiDetAprReq.nomubi}" />
+                                </p:column>
+                                <p:column style="width:30px;" headerText="C.Sol.">
+                                    <h:outputText value="#{vSeguiDetAprReq.det_can_sol}" />
+                                </p:column>
+                                <p:column style="width:190px" headerText="Descripción Item">
+                                    <h:outputText value="#{vSeguiDetAprReq.des_ite}" />
+                                </p:column>
+                                <p:column style="width:80px;" headerText="Estado">
+                                    <h:outputText value="#{vSeguiDetAprReq.det_sta}"/>
+                                </p:column>
+
+
+
+                            </p:dataTable>
+                        </p:panel>
+                    </p:tab>
+                    <p:tab id="tabHistoReq" title="Histórico"  >
+                        <p:toolbar>
+                            <f:facet name="left">
+
+                                <h:panelGrid columns="4" cellpadding="3">
+                                    <h:outputText value="Código:" style="font-weight:bold;" />
+                                    <p:inputText value="#{manRequisicionSeguimiento.idbuscar}" size="25" placeholder="Id's separados por comas." />
+                                    <p:commandButton value="Consultar" style=" width: 100px;"
+                                                     actionListener="#{manRequisicionSeguimiento.llenarMaestroHistoria()}"
+                                                     update=":frmSeguimientoReq"
+                                                     icon="ui-icon-search"
+                                                     disabled="#{manSeguridad.disableOpt('botonSeguimientoReqConsultar')}"
+                                                     /> 
+
+                                    <p:commandButton value="Cerrar" style=" width: 100px;"
+                                                     onclick="PF('wSeguimientoReq').hide()"
+                                                     actionListener="#{manRequisicionSeguimiento.cerrarventana()}"
+                                                     update=":frmSeguimientoReq"
+                                                     icon="ui-icon-close"
+                                                     />
+                                </h:panelGrid>
+
+                            </f:facet>
+
+                        </p:toolbar>
+
+                        <p:panel>
+                            <p:dataTable id="dtHistoricosReq" var="vHistoricosReq" 
+                                         value="#{manRequisicionSeguimiento.maestrohistoria}" 
+                                         emptyMessage="No se encontraron resultados" 
+                                         selectionMode="single" selection="#{manRequisicionSeguimiento.catmaestrohistoria}" 
+                                         rowKey="#{vHistoricosReq.cod_mae}"
+                                         editable="false" 
+                                         style="width:800px"
+                                         scrollable="true"
+                                         scrollHeight="100"
+                                         >
+
+                                <p:ajax event="rowSelect" listener="#{manRequisicionSeguimiento.onRowHistoriaSelect}" 
+                                        update=":frmSeguimientoReq:tabseguimientoreq:dtHistoricasDetReq"/>
+                                <p:ajax event="rowUnselect" listener="#{manRequisicionSeguimiento.onRowHistoriaUnselect}" 
+                                        update=":frmSeguimientoReq:tabseguimientoreq:dtHistoricasDetReq"/>
+
+                                <p:column style="width:30px;" headerText="Cod">
+                                    <h:outputText value="#{vHistoricosReq.cod_mae}" />
+                                </p:column>
+                                <p:column style="width:30px;" headerText="C.Alt.">
+                                    <h:outputText value="#{vHistoricosReq.cod_alt}" />
+                                </p:column>
+                                <p:column style="width:60px;" headerText="Fecha">
+                                    <h:outputText value="#{vHistoricosReq.fec_sol}" />
+                                </p:column>
+                                <p:column style="width:70px;" headerText="País">
+                                    <h:outputText value="#{vSvHistoricosReq.nompai}" />
+                                </p:column>
+                                <p:column style="width:90px" headerText="Solicitante">
+                                    <h:outputText value="#{vHistoricosReq.nomusu}" />
+                                </p:column>
+                                <p:column style="width:90px" headerText="Departamento">
+                                    <h:outputText value="#{vHistoricosReq.nomdep}" />
+                                </p:column>
+                                <p:column style="width:100px" headerText="Equipo">
+                                    <h:outputText value="#{vHistoricosReq.nommaq}" />
+                                </p:column>
+                                <p:column style="width:70px" headerText="Uso">
+                                    <h:outputText value="#{vHistoricosReq.det_uso}" />
+                                </p:column>
+                                <p:column style="width:70px" headerText="Estado">
+                                    <h:outputText value="#{vHistoricosReq.det_sta}" />
+                                </p:column>
+                            </p:dataTable>
+                        </p:panel>
+
+
+                        <p:panel>
+                            <p:dataTable id="dtHistoricasDetReq" var="vHistoricasDetReq" 
+                                         value="#{manRequisicionSeguimiento.detalleshistoria}" 
+                                         emptyMessage="No se encontraron resultados" 
+                                         selectionMode="single" selection="#{manRequisicionSeguimiento.catdetalleshistoria}" 
+                                         rowKey="#{vHistoricasDetReq.cod_det}"
+                                         editable="false" 
+                                         style="width:800px"
+                                         scrollable="true"
+                                         scrollHeight="180"
+                                         >
+
+                                <p:column style="width:50px;" headerText="Bodega">
+                                    <h:outputText value="#{vHistoricasDetReq.nombod}" />
+                                </p:column>
+                                <p:column style="width:50px;" headerText="Ubicación">
+                                    <h:outputText value="#{vHistoricasDetReq.nomubi}" />
+                                </p:column>
+                                <p:column style="width:30px;" headerText="C.Sol.">
+                                    <h:outputText value="#{vHistoricasDetReq.det_can_sol}" />
+                                </p:column>
+                                <p:column style="width:30px;" headerText="C.Ent.">
+                                    <h:outputText value="#{vHistoricasDetReq.det_can_ent}" />
+                                </p:column>
+                                <p:column style="width:30px;" headerText="C.Pen.">
+                                    <h:outputText value="#{vHistoricasDetReq.det_can_pen}" />
+                                </p:column>
+                                <p:column style="width:190px" headerText="Descripción Item">
+                                    <h:outputText value="#{vHistoricasDetReq.des_ite}" />
+                                </p:column>
+                                <p:column style="width:80px;" headerText="Estado">
+                                    <h:outputText value="#{vHistoricasDetReq.det_sta}"/>
+                                </p:column>
+
+                            </p:dataTable>
+                        </p:panel>
+
+                    </p:tab>
+                </p:tabView>
+            </h:form>
+        </p:dialog>
+
+        <p:dialog  id="dlgCodImpReq" widgetVar="wCodImpReq" modal="true" 
+                   width="380" height="130" closable="false" resizable="false" 
+                   header="Impresión Comprobante" rendered="true" 
+                   dynamic="false" visible="false" 
+                   >
+
+            <h:form id="frmCodImpReq"> 
+                <p:growl id="msgCodImpReq" showDetail="true" life="4500"/>
+                <p:toolbar>
+                    <f:facet name="left">
+                        <h:panelGrid columns="3" cellpadding="3">
+                            <p:commandButton value="Guardar" style=" width: 100px;"
+                                             icon="ui-icon-disk"
+                                             actionListener="#{manRequisicionSeguimiento.editarcodimp()}"
+                                             update=":frmCodImpReq"
+                                             />
+                            <h:commandButton value="Imprimir" 
+                                             style=" width: 100px; height: 21px; background-color: #dfecf1; "
+                                             actionListener="#{manRequisicionSeguimiento.ejecutarreporte()}"
+                                             onclick="this.form.target = '_blank'"/>
+                            <p:commandButton value="Cerrar" style=" width: 100px;"
+                                             onclick="PF('wCodImpReq').hide()"
+                                             icon="ui-icon-close"
+                                             actionListener="#{manRequisicionSeguimiento.cerrarcodimp()}"
+                                             update=":frmSeguimientoReq"
+                                             />
+                        </h:panelGrid>
+                    </f:facet>
+                </p:toolbar>
+                <p:panel>
+                    <h:panelGrid columns="2" cellpadding="5">
+                        <h:outputText value="Código Alternativo:" style="font-weight:bold;" />
+                        <p:inputText value="#{manRequisicionSeguimiento.cod_alt}" size="20" />
+                    </h:panelGrid>
+                </p:panel>
+            </h:form>
+        </p:dialog>
+        
+        <!--******************************************************************** 
+        *********************** Pantalla Buscar Lista Equipo *******************
+        *********************************************************************-->
+
+        <p:dialog  id="dlgSearchLE" widgetVar="wSearchLE" modal="true" 
+                   width="850" height="400" closable="false" resizable="false" 
+                   header="Buscar Equipos" rendered="true" 
+                   dynamic="false" visible="false" 
+                   >
+            <h:form id="frmSearchLE">
+                <p:growl id="msgSearchLE" showDetail="true" life="4500"/>
+                <p:toolbar>
+                    <f:facet name="right">
+                        <p:commandButton value="Buscar" 
+                                         icon="ui-icon-search" 
+                                         update="dtSLE" 
+                                         actionListener="#{manListaEquipos.llenarLequipos()}"/>
+                        <p:commandButton value="Cerrar" 
+                                         icon="ui-icon-close" 
+                                         update="dtSLE" 
+                                         onclick="PF('wSearchLE').hide()"
+                                         actionListener="#{manListaEquipos.cerrarventanabuscar()}"/>
+                    </f:facet>
+                </p:toolbar>
+                <p:panel>
+                    <h:panelGrid columns="4" cellpadding="5">
+                        <h:outputText value="Número Serie" style="font-weight:bold;"/>
+                        <h:outputText value="País" style="font-weight:bold;"/>
+                        <h:outputText value="Equipo" style="font-weight:bold;"/>
+                        <h:outputText value="Cliente" style="font-weight:bold;"/>
+                        <p:inputText size="20"
+                                     maxlength="20"
+                                     value="#{manListaEquipos.num_ser_b}"
+                                     onfocus="this.select()"
+                                     />
+                        <p:selectOneMenu value="#{manListaEquipos.cod_pai_b}" 
+                                         style=" width: 160px;">
+                            <p:ajax event="change" listener="#{manListaEquipos.onPaisBusChange()}" update="somclibus" />
+                            <f:selectItem itemLabel="Ninguno" itemValue="0"/>
+                            <f:selectItems value="#{manListaEquipos.paises}" var="lstpaibus"
+                                           itemLabel="#{lstpaibus.nom_pai}" itemValue="#{lstpaibus.cod_pai}"/> 
+                        </p:selectOneMenu>
+                        <p:selectOneMenu value="#{manListaEquipos.cod_equ_b}" 
+                                         style=" width: 160px;">
+                            <f:selectItem itemLabel="Ninguno" itemValue="0"/>
+                            <f:selectItems value="#{manListaEquipos.equipos}" var="lstequ2"
+                                           itemLabel="#{lstequ2.nom_equ}" itemValue="#{lstequ2.cod_equ}"/> 
+                        </p:selectOneMenu>
+                        <p:selectOneMenu  value="#{manListaEquipos.cod_cli_b}" 
+                                          style=" width: 200px;" id="somclibus">
+                            <f:selectItem itemLabel="Ninguno" itemValue="0"/>
+                            <f:selectItems value="#{manListaEquipos.clientesb}" var="lstcli2"
+                                           itemLabel="#{lstcli2.nom_cli}" itemValue="#{lstcli2.cod_cli}"/> 
+                        </p:selectOneMenu>
+                    </h:panelGrid>
+
+                    <p:dataTable id="dtSLE" var="vSLE" 
+                                 value="#{manListaEquipos.lequipos}" 
+                                 emptyMessage="No se encontraron resultados" 
+                                 selectionMode="single" selection="#{manListaEquipos.catlistaequipos}" 
+                                 rowKey="#{vSLE.cod_lis_equ}"
+                                 editable="false"
+                                 scrollable="true"
+                                 scrollHeight="220"
+                                 style="width:790px"
+                                 >
+                        <p:ajax event="rowSelect" listener="#{manListaEquipos.onRowSelect}" 
+                                update=":frmSearchLE"/>
+                        <p:column style="width:30px;" headerText="País">
+                            <h:outputText value="#{vSLE.nompai}" />
+                        </p:column>
+                        <p:column style="width:30px;" headerText="Equipo">
+                            <h:outputText value="#{vSLE.nomequ}" />
+                        </p:column>
+                        <p:column style="width:40px" headerText="Serie">
+                            <h:outputText value="#{vSLE.num_ser}" />
+                        </p:column>
+                        <p:column style="width:60px" headerText="Cliente">
+                            <h:outputText value="#{vSLE.nomcli}" />
+                        </p:column>
+                        <p:column style="width:80px" headerText="Ubicación">
+                            <h:outputText value="#{vSLE.des_ubi}" />
+                        </p:column>
+                    </p:dataTable>
+                </p:panel>
+            </h:form>
+
+
+        </p:dialog>
+         
+        <!--******************************************************************** 
+        *********************** Pantalla eXISTENCIA PIEZAS *******************
+        *********************************************************************--> 
+        
+        <p:dialog  id="dlgExistencias" widgetVar="wExistencias" modal="true" 
+                   width="850" height="360" closable="false" resizable="false" 
+                   header="Existencias" rendered="true" 
+                   dynamic="false" visible="false"  
+                   >
+            <h:form id="frmExistencias">
+                <p:toolbar>
+                    <f:facet name="right">
+                        <p:commandButton value="Cerrar" style=" width: 100px;"
+                                         onclick="PF('wExistencias').hide()"
+                                         actionListener="#{manTblPiezas.cerrarventanaexistencia()}"
+                                         update=":frmListaPiezas,:frmExistencias"
+                                         icon="ui-icon-close"
+                                         />
+                    </f:facet>
+
+                </p:toolbar>
+                <p:panel>
+                    <h:panelGrid columns="3" cellpadding="5">
+                        <h:outputText value="Pieza" style="font-weight:bold;"/>
+                        <h:outputText value="País" style="font-weight:bold;"/>
+                        <h:outputText value="" style="font-weight:bold;"/>
+                        <p:selectOneMenu value="#{manTblPiezas.cod_pie}" 
+                                         style=" width: 500px;"
+                                         filter="true" 
+                                         filterMatchMode="contains"
+                                         >
+                            <f:selectItem itemLabel="Ninguno" itemValue="0"/>
+                            <f:selectItems value="#{manTblPiezas.piezas}" var="lstpiepie"
+                                           itemLabel="#{lstpiepie.referencia} | #{lstpiepie.nombre}" itemValue="#{lstpiepie.codigo}"/> 
+                        </p:selectOneMenu>
+                        <p:inputText size="20" value="#{manTblPiezas.nompai}" readonly="true"/>
+
+                        <p:commandButton title="Buscar" 
+                                         icon="ui-icon-search" 
+                                         style=" width: 30px;" 
+                                         actionListener="#{manTblPiezas.buscarexistencia()}" 
+                                         update="dtExistencias"
+                                         />
+                    </h:panelGrid>
+                </p:panel>
+                <p:dataTable id="dtExistencias" var="vExistencias" 
+                             value="#{manTblPiezas.existencias}" 
+                             emptyMessage="No se encontraron resultados" 
+                             selection="#{manTblPiezas.catpiezasconexistencia}" 
+                             selectionMode="single"
+                             rowKey="#{vExistencias.cod_pie}"
+                             scrollable="true"
+                             scrollHeight="180"
+                             style="width:823px"
+                             >
+
+
+                    <p:column style="width:200px;" headerText="Pieza">
+                        <h:outputText value="#{vExistencias.cod_bod} | #{vExistencias.nompie}" />
+                    </p:column>
+                    <p:column style="width:50px;" headerText="Stock">
+                        <h:outputText value="#{vExistencias.can_sto}" />
+                    </p:column>
+                    <p:column style="width:50px;" headerText="Reserva">
+                        <h:outputText value="#{vExistencias.can_res}" />
+                    </p:column>
+                    <p:column style="width:50px;" headerText="Disponible">
+                        <h:outputText value="#{vExistencias.can_sto - vExistencias.can_res}" />
+                    </p:column>
+
+                </p:dataTable>
+            </h:form>
+        </p:dialog>
+
+        <p:dialog  id="dlgBuscarListaPiezas" widgetVar="wBuscarListaPiezas" modal="true" 
+                   width="850" height="415" closable="false" resizable="false" 
+                   header="Movimientos de Almacén" rendered="true" 
+                   dynamic="false" visible="false"  
+                   >
+            <h:form id="frmBuscarListaPiezas">
+                <p:toolbar>
+                    <f:facet name="right">
+                        <p:commandButton value="Cerrar" style=" width: 100px;"
+                                         onclick="PF('wBuscarListaPiezas').hide()"
+                                         actionListener="#{manTblPiezas.cerrarventanaid()}"
+                                         update=":frmListaPiezas,:frmBuscarListaPiezas"
+                                         icon="ui-icon-close"
+                                         />
+                    </f:facet>
+
+                </p:toolbar>
+                <p:panel>
+                    <h:panelGrid columns="4" cellpadding="5">
+                        <h:outputText value="Id Ingreso/Salida" style="font-weight:bold;"/>
+                        <h:outputText value="País" style="font-weight:bold;"/>
+                        <h:outputText value="Proveedor" style="font-weight:bold;"/>
+                        <h:outputText value="PO Quickbook" style="font-weight:bold;"/>
+                        <p:inputText size="20" value="#{manTblPiezas.cod_lis_pie}" />
+                        <p:selectOneMenu value="#{manTblPiezas.paibus}" 
+                                         style=" width: 160px;">
+                            <p:ajax event="change" listener="#{manTblPiezas.seleccionarpais()}" 
+                                    update="somprobuslstpie" />
+                            <f:selectItem itemLabel="Ninguno" itemValue="0"/>
+                            <f:selectItems value="#{manTblPiezas.paises}" var="lstpaipie2"
+                                           itemLabel="#{lstpaipie2.nom_pai}" itemValue="#{lstpaipie2.cod_pai}"/> 
+                        </p:selectOneMenu>
+                        <p:selectOneMenu id="somprobuslstpie" value="#{manTblPiezas.probus}" 
+                                         style=" width: 160px;">
+                            <f:selectItem itemLabel="Ninguno" itemValue="0"/>
+                            <f:selectItems value="#{manTblPiezas.proveedores}" var="lstpropie3"
+                                           itemLabel="#{lstpropie3.nom_pro}" itemValue="#{lstpropie3.cod_pro}"/> 
+                        </p:selectOneMenu>
+                        <p:inputText size="20" value="#{manTblPiezas.pobus}" />
+                    </h:panelGrid>
+                    <h:panelGrid columns="3" cellpadding="5">
+                        <h:outputText value="Tipo Movimiento" style="font-weight:bold;"/>
+                        <h:outputText value="Fecha" style="font-weight:bold;"/>
+                        <h:outputText value="" style="font-weight:bold;"/>
+                        <p:selectOneMenu value="#{manTblPiezas.movpus}" 
+                                         style=" width: 160px;">
+                            <f:selectItem itemLabel="Ninguno" itemValue="0"/>
+                            <f:selectItems value="#{manTblPiezas.movimientostotal}" var="lstmovpie3"
+                                           itemLabel="#{lstmovpie3.nom_mov}" itemValue="#{lstmovpie3.id_mov}"/> 
+                        </p:selectOneMenu>
+                        <p:inputText size="20" value="#{manTblPiezas.fecbus}" /> 
+
+                        <p:commandButton title="Buscar" 
+                                         icon="ui-icon-search" 
+                                         style=" width: 30px;" 
+                                         actionListener="#{manTblPiezas.buscarid()}" 
+                                         update="dtIngSal"
+                                         />
+                    </h:panelGrid>
+                </p:panel>
+                <p:dataTable id="dtIngSal" var="vIngSal" 
+                             value="#{manTblPiezas.piezasencabezado}" 
+                             emptyMessage="No se encontraron resultados" 
+                             selection="#{manTblPiezas.cattblpiezas}" 
+                             selectionMode="single"
+                             rowKey="#{vIngSal.cod_lis_pie}"
+                             scrollable="true"
+                             scrollHeight="180"
+                             style="width:823px"
+                             >
+                    <p:ajax event="rowSelect" listener="#{manTblPiezas.onRowSelectBID}" 
+                            update=":frmListaPiezas,:frmBuscarListaPiezas"/>
+                    <p:column style="width:30px;" headerText="Fecha">
+                        <h:outputText value="#{vIngSal.fec_tra}" />
+                    </p:column>
+                    <p:column style="width:40px;" headerText="País">
+                        <h:outputText value="#{vIngSal.nompai}" />
+                    </p:column>
+                    <p:column style="width:60px;" headerText="Proveedor">
+                        <h:outputText value="#{vIngSal.nompro}" />
+                    </p:column>
+                    <p:column style="width:40px;" headerText="Movimiento">
+                        <h:outputText value="#{vIngSal.nommov}" />
+                    </p:column>
+                    <p:column style="width:10px;" headerText="Id">
+                        <h:outputText value="#{vIngSal.cod_lis_pie}" />
+                    </p:column>
+
+                </p:dataTable>
+            </h:form>
+        </p:dialog>
+        
+        
+        <!--******************************************************************** 
+        ************************* Pantalla Maestra *****************************
+        *********************************************************************-->
+
+        <p:dialog  id="dlgMaestraMan" widgetVar="wMaestra" modal="true" 
+                   width="1110" height="510" closable="false" resizable="false" 
+                   header="Mantenimientos" rendered="true" 
+                   dynamic="false" visible="false" 
+                   >
+            <h:form id="frmMaestra" >
+                <p:growl id="msgMaestra" showDetail="true" life="4500"/>
+                <p:outputLabel value="#{manMaestroMan.mtitulo}"/>
+                <p:layout style="width:1075px;height:480px;" id="luman" >
+                    <p:layoutUnit position="west" size="200">
+                        <h:panelGrid columns="1" styleClass="noBorders">
+                            <h:outputText value="WO" style="font-weight:bold;"/>
+                            <h:panelGrid columns="2" >
+                                <p:inputText maxlength="5" size="15" value="#{manMaestroMan.cod_alt}" />
+                                <p:commandButton title="Buscar WO" style=" width: 30px;"
+                                                 actionListener="#{manMaestroMan.buscarwo()}"
+                                                 update=":frmMaestra"
+                                                 icon="ui-icon-search"
+                                                 /> 
+                            </h:panelGrid>
+                            <h:outputText value="País" style="font-weight:bold;"/>
+                            <p:selectOneMenu style=" width: 125px;" value="#{manMaestroMan.buscar_pais}"
+                                             filter="true" filterMatchMode="contains" 
+                                             >
+                                <p:ajax event="change" listener="#{manMaestroMan.onSelectPais()}" update=":frmMaestra"/>
+                                <f:selectItem itemLabel="Seleccione Uno" itemValue="0"/>
+                                <f:selectItems value="#{manMaestroMan.paises}" var="buspaimaeman"
+                                               itemLabel="#{buspaimaeman.nom_pai}" itemValue="#{buspaimaeman.cod_pai}"/> 
+                            </p:selectOneMenu>
+                            <h:outputText value="Equipo" style="font-weight:bold;"/>
+                            <p:selectOneMenu style=" width: 125px;" value="#{manMaestroMan.buscar_equipo}"
+                                             filter="true" filterMatchMode="contains" 
+                                             >
+                                <p:ajax event="change" listener="#{manMaestroMan.onSelectEquipo()}" update=":frmMaestra"/>
+                                <f:selectItem itemLabel="Seleccione Uno" itemValue="0"/>
+                                <f:selectItems value="#{manMaestroMan.listadoequipo}" var="busequmaeman"
+                                               itemLabel="#{busequmaeman.descripcion}" itemValue="#{busequmaeman.codigo}"/> 
+                            </p:selectOneMenu>
+                            <h:outputText value="Serie" style="font-weight:bold;"/>
+                            <p:selectOneMenu style=" width: 125px;" value="#{manMaestroMan.buscar_serie}"
+                                             filter="true" filterMatchMode="contains" 
+                                             >
+                                <p:ajax event="change" listener="#{manMaestroMan.onSelectSerie()}" update=":frmMaestra"/>
+                                <f:selectItem itemLabel="Seleccione Una" itemValue="0"/>
+                                <f:selectItems value="#{manMaestroMan.listadoserie}" var="bussermaeman"
+                                               itemLabel="#{bussermaeman.descripcion}" itemValue="#{bussermaeman.codigo}"/> 
+                            </p:selectOneMenu>
+
+                        </h:panelGrid>
+
+                    </p:layoutUnit>
+                    <p:layoutUnit position="center" id="lumanc">
+                        <p:toolbar>
+                            <f:facet name="left">
+                                <p:commandButton value="Nuevo" style=" width: 90px;"
+                                                 actionListener="#{manMaestroMan.iniciarventananew()}"
+                                                 update=":frmMaestraNew"
+                                                 icon="ui-icon-document"
+                                                 disabled="#{manSeguridad.disableOpt('botonMantenimientoNuevo')}"
+                                                 /> 
+                                <p:commandButton value="Modificar" style=" width: 90px;"
+                                                 actionListener="#{manMaestroMan.iniciarventanaedit()}"
+                                                 update=":frmMaestraNew"
+                                                 icon="ui-icon-pencil"
+                                                 disabled="#{manSeguridad.disableOpt('botonMantenimientoModificar')}"
+                                                 />
+                                <p:commandButton value="Guardar" style=" width: 90px;"
+                                                 actionListener="#{manMaestroMan.guardarmantenimiento()}"
+                                                 update=":frmMaestra"
+                                                 icon="ui-icon-disk"
+                                                 disabled="#{manSeguridad.disableOpt('botonMantenimientoGuardar')}"
+                                                 > 
+                                    <p:confirm header="Guardar Mantenimiento" 
+                                               message="¿Realmente desea Guardar Todos Los Cambios de este Mantenimiento?" 
+                                               icon="ui-icon-alert"/>
+                                </p:commandButton>
+                                <p:commandButton value="Eliminar" style=" width: 90px;"
+                                                 actionListener="#{manMaestroMan.eliminarencabezado()}"
+                                                 update=":frmMaestra"
+                                                 icon="ui-icon-trash"
+                                                 disabled="#{manSeguridad.disableOpt('botonMantenimientoEliminar')}"
+                                                 > 
+                                    <p:confirm header="Eliminar Mantenimiento" 
+                                               message="¿Realmente desea Eliminar este Mantenimiento?" 
+                                               icon="ui-icon-alert"/>
+                                </p:commandButton>
+
+
+                            </f:facet>
+                            <f:facet name="right">
+                                <p:commandButton value="Actualizar" style=" width: 90px;"
+                                                 update=":frmMaestra"
+                                                 icon="ui-icon-refresh"
+                                                 />
+
+                                <p:commandButton value="Finalizar" style=" width: 90px;"
+                                                 onclick="PF('wMaestraFin').show()"
+                                                 update=":frmMaestraFin"
+                                                 icon="ui-icon-check"
+                                                 disabled="#{manSeguridad.disableOpt('botonMantenimientoFinalizar')}"
+                                                 /> 
+                                <p:commandButton value="Cerrar" style=" width: 90px;"
+                                                 onclick="PF('wMaestra').hide()"
+                                                 actionListener="#{manMaestroMan.cerrarventana()}"
+                                                 update=":frmMaestra"
+                                                 icon="ui-icon-close"
+                                                 />
+                            </f:facet>
+
+                        </p:toolbar>
+                        <p:dataTable id="dtEncMan" var="vEncMan" 
+                                     value="#{manMaestroMan.mantenimientos}" 
+                                     emptyMessage="No se encontraron resultados" 
+                                     selection="#{manMaestroMan.catmantenimientos}" 
+                                     selectionMode="single"
+                                     rowKey="#{vEncMan.cod_man}"
+                                     editable="false"
+                                     scrollable="true"
+                                     scrollHeight="80"
+                                     style="width:840px;"
+                                     widgetVar="wvEncMan"
+                                     >
+
+                            <f:facet name="header">
+                                <p:outputPanel style=" text-align: right;">
+
+                                    <h:outputText value="Filtrar:&nbsp;&nbsp;" />
+                                    <p:inputText id="globalFilter" 
+                                                 onkeyup="PF('wvEncMan').filter()" 
+                                                 style="width:80px;" 
+                                                 placeholder="Id"/>
+
+                                </p:outputPanel>
+                            </f:facet>
+
+                            <p:ajax event="rowSelect" listener="#{manMaestroMan.onRowSelectEnc}" update=":frmMaestra"/>
+                            <p:ajax event="rowUnselect" listener="#{manMaestroMan.onRowUnSelectEnc}" 
+                                    update=":frmMaestra"/>
+
+                            <p:column style="width:10px" headerText="Id" filterBy="#{vEncMan.cod_alt}" filterMatchMode="contains"  
+                                      filterStyle="display:none; visibility:hidden;">
+                                <h:outputText value="#{vEncMan.cod_alt}" />
+                            </p:column>
+                            <p:column style="width:30px" headerText="Fecha">
+                                <h:outputText value="#{vEncMan.fec_ini}" />
+                            </p:column>
+                            <p:column style="width:30px;" headerText="Tipo">
+                                <h:outputText value="#{vEncMan.nomtip}" />
+                            </p:column>
+                            <p:column style="width:200px" headerText="Observaciones">
+                                <h:outputText value="#{vEncMan.det_obs}" />
+                            </p:column>
+                            <p:column style="width:50px" headerText="Estado">
+                                <h:outputText value="#{vEncMan.status}" />
+                            </p:column>
+                            <p:column style="width:40px" headerText="Retraso">
+                                <h:panelGrid columns="2">
+                                    <h:outputText value="#{vEncMan.datraso}" />
+                                    <h:outputText value="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" style=" background-color: #{vEncMan.color};"/>
+                                </h:panelGrid>
+                            </p:column>
+                            <p:column style="width:40px" headerText="Ciclo">
+                                <h:outputText value="#{vEncMan.periodo}" />
+                            </p:column>
+
+                        </p:dataTable>
+
+                        <p:tabView id="tvDetMan2" activeIndex="#{manMaestroMan.tabindex}" >
+                            <p:ajax event="tabChange" listener="#{manMaestroMan.onTabChange}" />
+                            <p:tab id="tabGEN" title="Detalle Técnico">
+                                <p:panel>
+                                    <h:panelGrid columns="3" cellpadding="5">
+                                        <h:outputText value="Fecha y hora" style="font-weight:bold;"/>
+                                        <h:outputText value="Operación" style="font-weight:bold;"/>
+                                        <h:outputText value="Realizó" style="font-weight:bold;"/>
+                                        <p:calendar  pattern="dd/MM/yyyy HH:mm" locale="es" 
+                                                     readonlyInput="true" 
+                                                     showOn="button" size="16"
+                                                     value="#{manMaestroMan.dfecha1}"
+                                                     >
+                                            <p:ajax event="dateSelect" listener="#{manMaestroMan.dateSelectedGeneral}" />
+                                        </p:calendar> 
+                                        <p:selectOneMenu style=" width: 325px;" value="#{manMaestroMan.gen_cod_ope}"
+                                                         filter="true" filterMatchMode="contains" 
+                                                         >
+                                            <f:selectItem itemLabel="Seleccione Una" itemValue="0"/>
+                                            <f:selectItems value="#{manMaestroMan.operaciones}" var="tipope"
+                                                           itemLabel="#{tipope.nom_ope}" itemValue="#{tipope.cod_ope}"/> 
+                                        </p:selectOneMenu>
+                                        <p:selectOneMenu style=" width: 210px;" 
+                                                         value="#{manMaestroMan.gen_cod_usu}"
+                                                         disabled="#{manSeguridad.disableOpt('comboRealizoDetTec')}" 
+                                                         >
+                                            <f:selectItem itemLabel="Seleccione Uno" itemValue="0"/>
+                                            <f:selectItems value="#{manMaestroMan.usuarios}" var="usudet"
+                                                           itemLabel="#{usudet.det_nom}" itemValue="#{usudet.cod_usu}"/> 
+                                        </p:selectOneMenu>
+                                    </h:panelGrid>
+                                    <h:panelGrid columns="4" cellpadding="3">
+                                        <h:outputText value="Duración (Min)" style="font-weight:bold;"/>
+                                        <h:outputText value="Observaciones" style="font-weight:bold;"/>
+                                        <h:outputText value="" style="font-weight:bold;"/>
+                                        <h:outputText value="" style="font-weight:bold;"/>
+                                        <p:inputText maxlength="5" size="10" value="#{manMaestroMan.gen_det_min}" />
+                                        <p:inputText maxlength="500" size="90" value="#{manMaestroMan.gen_det_obs}" />
+                                        <p:commandButton title="Agregar" icon="ui-icon-plus" style="width:30px;" 
+                                                         actionListener="#{manMaestroMan.agregargeneral()}"
+                                                         update=":frmMaestra"
+                                                         disabled="#{manSeguridad.disableOpt('botonMantenimientoGenAgregar')}"
+                                                         />
+                                        <p:commandButton title="Eliminar" icon="ui-icon-minus" style="width:30px;" 
+                                                         actionListener="#{manMaestroMan.eliminargeneral()}"
+                                                         update=":frmMaestra"
+                                                         disabled="#{manSeguridad.disableOpt('botonMantenimientoGenEliminar')}"
+                                                         />
+                                    </h:panelGrid>
+                                </p:panel>
+                                <p:dataTable id="dtDetTec" var="vDetTec" 
+                                             value="#{manMaestroMan.general}" 
+                                             emptyMessage="No se encontraron resultados" 
+                                             selection="#{manMaestroMan.catmantenimientosgen}" 
+                                             selectionMode="single"
+                                             rowKey="#{vDetTec.det_man}"
+                                             editable="false"
+                                             scrollable="true"
+                                             scrollHeight="80"
+                                             style="width:800px"
+                                             >
+                                    <p:ajax event="rowSelect" listener="#{manMaestroMan.onRowSelectGen}" update=":frmMaestra"/>
+                                    <p:column style="width:12px;" headerText="Fecha y Hora">
+                                        <h:outputText value="#{vDetTec.fec_man}" />
+                                    </p:column>
+                                    <p:column style="width:80px" headerText="Operación">
+                                        <h:outputText value="#{vDetTec.nomope}" />
+                                    </p:column>
+                                    <p:column style="width:80px" headerText="Observaciones">
+                                        <h:outputText value="#{vDetTec.det_obs}" />
+                                    </p:column>
+                                    <p:column style="width:50px" headerText="Realizó">
+                                        <h:outputText value="#{vDetTec.nomusu}" />
+                                    </p:column>
+                                </p:dataTable>
+                            </p:tab>
+                            <p:tab id="tabPIE" title="Almacén">
+                                <p:panel>
+                                    <h:panelGrid columns="3" cellpadding="5">
+                                        <h:outputText value="Fecha y hora" style="font-weight:bold;"/>
+                                        <h:outputText value="Responsable" style="font-weight:bold;"/>
+                                        <h:outputText value="País" style="font-weight:bold;"/>
+
+                                        <p:calendar  pattern="dd/MM/yyyy HH:mm" locale="es" 
+                                                     readonlyInput="true" showOn="button" size="16"
+                                                     value="#{manMaestroMan.dfecha2}"
+                                                     >
+                                            <p:ajax event="dateSelect" listener="#{manMaestroMan.dateSelectedPiezas}" />
+                                        </p:calendar>  
+
+                                        <p:selectOneMenu style=" width: 180px;" 
+                                                         value="#{manMaestroMan.pie_cod_usu}"
+                                                         disabled="#{manSeguridad.disableOpt('comboResponsablePieMant')}" 
+                                                         >
+                                            <f:selectItem itemLabel="Seleccione Uno" itemValue="0"/>
+                                            <f:selectItems value="#{manMaestroMan.usuarios}" var="usumanpie"
+                                                           itemLabel="#{usumanpie.det_nom}" itemValue="#{usumanpie.cod_usu}"/> 
+                                        </p:selectOneMenu>
+
+                                        <p:selectOneMenu style=" width: 180px;" 
+                                                         value="#{manMaestroMan.pie_cod_pai}"
+                                                         disabled="#{manSeguridad.disableOpt('comboPaisPieMant')}" 
+                                                         >
+                                            <f:selectItem itemLabel="Seleccione Uno" itemValue="0"/>
+                                            <f:selectItems value="#{manMaestroMan.paises}" var="paimanpie"
+                                                           itemLabel="#{paimanpie.nom_pai}" itemValue="#{paimanpie.cod_pai}"/> 
+                                        </p:selectOneMenu>
+
+                                    </h:panelGrid>
+
+                                    <h:panelGrid columns="5" cellpadding="5">
+                                        <h:outputText value="Cantidad" style="font-weight:bold;"/>
+                                        <h:outputText value="Item de Almacén" style="font-weight:bold;"/>
+                                        <h:outputText value="Números de Serie" style="font-weight:bold;"/>
+                                        <h:outputText value="" style="font-weight:bold;"/>
+                                        <h:outputText value="" style="font-weight:bold;"/>
+                                        <p:inputText maxlength="12" size="10" value="#{manMaestroMan.pie_det_can}" />
+                                        <p:selectOneMenu id="sompiemanpie" style=" width: 270px;" 
+                                                         filter="true" filterMatchMode="contains" 
+                                                         value="#{manMaestroMan.pie_cod_pie}">
+                                            <f:selectItem itemLabel="Seleccione Una" itemValue="0"/>
+                                            <f:selectItems value="#{manMaestroMan.existenciareal}" var="lpiemanpie"
+                                                           itemLabel="#{lpiemanpie.cod_ref} - #{lpiemanpie.nom_pie}" itemValue="#{lpiemanpie.cod_pie}"/> 
+                                        </p:selectOneMenu>
+                                        <p:inputText maxlength="200" size="40" value="#{manMaestroMan.pie_num_ser}" />
+                                        <p:commandButton title="Agregar" icon="ui-icon-plus" style="width:30px;" 
+                                                         actionListener="#{manMaestroMan.agregarpiezas()}"
+                                                         update=":frmMaestra"
+                                                         disabled="#{manSeguridad.disableOpt('botonMantenimientoPieAgregar')}"
+                                                         />
+                                        <p:commandButton title="Eliminar" icon="ui-icon-minus" style="width:30px;" 
+                                                         actionListener="#{manMaestroMan.eliminarpiezas()}"
+                                                         update=":frmMaestra"
+                                                         disabled="#{manSeguridad.disableOpt('botonMantenimientoPieEliminar')}"
+                                                         />
+                                    </h:panelGrid>
+                                </p:panel>
+                                <p:dataTable id="dtDetPie2" var="vDetPie" 
+                                             value="#{manMaestroMan.piezas}" 
+                                             emptyMessage="No se encontraron resultados" 
+                                             selection="#{manMaestroMan.catmantenimientospie}" 
+                                             selectionMode="single"
+                                             rowKey="#{vDetPie.det_man}"
+                                             editable="false"
+                                             scrollable="true"
+                                             scrollHeight="80"
+                                             style="width:800px"
+                                             >
+                                    <p:ajax event="rowSelect" listener="#{manMaestroMan.onRowSelectPie}" update=":frmMaestra"/>
+
+
+                                    <p:column style="width:30px;" headerText="Fecha">
+                                        <h:outputText value="#{vDetPie.fec_man}" />
+                                    </p:column>
+                                    <p:column style="width:30px;" headerText="País">
+                                        <h:outputText value="#{vDetPie.nompai}" />
+                                    </p:column>
+                                    <p:column style="width:10px" headerText="Cant">
+                                        <h:outputText value="#{vDetPie.det_can}" />
+                                    </p:column>
+                                    <p:column style="width:100px;" headerText="Pieza">
+                                        <h:outputText value="#{vDetPie.nompie}" />
+                                    </p:column>
+                                    <p:column style="width:60px" headerText="Series">
+                                        <h:outputText value="#{vDetPie.num_ser}" />
+                                    </p:column>
+                                    <p:column style="width:70px" headerText="Responsable">
+                                        <h:outputText value="#{vDetPie.nomusu}" />
+                                    </p:column>
+
+                                </p:dataTable>
+                            </p:tab>
+                            <p:tab id="tabACC" title="Accesorios">
+                                <p:panel>
+                                    <h:panelGrid columns="3" cellpadding="5">
+                                        <h:outputText value="Fecha y hora" style="font-weight:bold;"/>
+                                        <h:outputText value="Responsable" style="font-weight:bold;"/>
+                                        <h:outputText value="País" style="font-weight:bold;"/>
+
+                                        <p:calendar  pattern="dd/MM/yyyy HH:mm" locale="es" 
+                                                     readonlyInput="true" showOn="button" size="16"
+                                                     value="#{manMaestroMan.dfecha3}"
+                                                     >
+                                            <p:ajax event="dateSelect" listener="#{manMaestroMan.dateSelectedAccesorios}" />
+                                        </p:calendar>  
+
+                                        <p:selectOneMenu style=" width: 180px;" value="#{manMaestroMan.acc_cod_usu}"
+                                                         disabled="#{manSeguridad.disableOpt('comboResponsableAccMant')}" 
+                                                         >
+                                            <f:selectItem itemLabel="Seleccione Uno" itemValue="0"/>
+                                            <f:selectItems value="#{manMaestroMan.usuarios}" var="usumanacc"
+                                                           itemLabel="#{usumanacc.det_nom}" itemValue="#{usumanacc.cod_usu}"/> 
+                                        </p:selectOneMenu>
+
+                                        <p:selectOneMenu style=" width: 180px;" 
+                                                         value="#{manMaestroMan.acc_cod_pai}"
+                                                         disabled="#{manSeguridad.disableOpt('comboPaisAccMant')}" 
+                                                         >
+                                            <f:selectItem itemLabel="Seleccione Uno" itemValue="0"/>
+                                            <f:selectItems value="#{manMaestroMan.paises}" var="paimanacc"
+                                                           itemLabel="#{paimanacc.nom_pai}" itemValue="#{paimanacc.cod_pai}"/> 
+                                        </p:selectOneMenu>
+
+                                    </h:panelGrid>
+
+                                    <h:panelGrid columns="4" cellpadding="5">
+                                        <h:outputText value="Cantidad" style="font-weight:bold;"/>
+                                        <h:outputText value="Item" style="font-weight:bold;"/>
+                                        <h:outputText value="" style="font-weight:bold;"/>
+                                        <h:outputText value="" style="font-weight:bold;"/>
+                                        <p:inputText maxlength="12" size="10" value="#{manMaestroMan.acc_det_can}" />
+                                        <p:inputText maxlength="200" size="90" value="#{manMaestroMan.acc_des_ite}" />
+                                        <p:commandButton title="Agregar" icon="ui-icon-plus" style="width:30px;" 
+                                                         actionListener="#{manMaestroMan.agregaraccesorios()}"
+                                                         update=":frmMaestra"
+                                                         disabled="#{manSeguridad.disableOpt('botonMantenimientoAccAgregar')}"
+                                                         />
+                                        <p:commandButton title="Eliminar" icon="ui-icon-minus" style="width:30px;" 
+                                                         actionListener="#{manMaestroMan.eliminarAccesorio()}"
+                                                         update=":frmMaestra"
+                                                         disabled="#{manSeguridad.disableOpt('botonMantenimientoAccEliminar')}"
+                                                         />
+                                    </h:panelGrid>
+                                </p:panel>
+                                <p:dataTable id="dtDetAcc" var="vDetAcc" 
+                                             value="#{manMaestroMan.accesorios}" 
+                                             emptyMessage="No se encontraron resultados" 
+                                             selection="#{manMaestroMan.catmantenimientosacc}" 
+                                             selectionMode="single"
+                                             rowKey="#{vDetAcc.det_man}"
+                                             editable="false"
+                                             scrollable="true"
+                                             scrollHeight="80"
+                                             style="width:800px"
+                                             >
+                                    <p:ajax event="rowSelect" listener="#{manMaestroMan.onRowSelectAcc}" update=":frmMaestra"/>
+
+
+                                    <p:column style="width:110px;" headerText="Fecha">
+                                        <h:outputText value="#{vDetAcc.fec_man}" />
+                                    </p:column>
+                                    <p:column style="width:100px;" headerText="País">
+                                        <h:outputText value="#{vDetAcc.nompai}" />
+                                    </p:column>
+                                    <p:column style="width:50px" headerText="Cantidad">
+                                        <h:outputText value="#{vDetAcc.det_can}" />
+                                    </p:column>
+                                    <p:column style="width:400px" headerText="Descripción">
+                                        <h:outputText value="#{vDetAcc.des_ite}" />
+                                    </p:column>
+
+                                </p:dataTable>
+                            </p:tab>
+                            <p:tab id="tabANE" title="Anexos">
+                                <p:panel>
+                                    <h:panelGrid columns="5" cellpadding="5" >
+                                        <h:outputText value="Tipo" style="font-weight:bold;"/>
+                                        <h:outputText value="Compartido por" style="font-weight:bold;"/>
+                                        <h:outputText value="Observaciones" style="font-weight:bold;"/>
+                                        <h:outputText value="" style="font-weight:bold;"/>
+                                        <h:outputText value="" style="font-weight:bold;"/>
+                                        <p:selectOneMenu style=" width: 120px;" value="#{manMaestroMan.ane_tip_ane}">
+                                            <f:selectItem itemLabel="Seleccione Uno" itemValue="0"/>
+                                            <f:selectItem itemLabel="PDF" itemValue="1"/>
+                                            <f:selectItem itemLabel="IMAGEN" itemValue="2"/>
+                                            <f:selectItem itemLabel="MP4" itemValue="3"/>
+                                            <f:selectItem itemLabel="OTRO" itemValue="4"/>
+                                        </p:selectOneMenu>
+                                        <p:selectOneMenu style=" width: 180px;" 
+                                                         value="#{manMaestroMan.ane_cod_usu}"
+                                                         disabled="#{manSeguridad.disableOpt('comboCompartidoPorAneMant')}"
+                                                         >
+                                            <f:selectItem itemLabel="Seleccione Uno" itemValue="0"/>
+                                            <f:selectItems value="#{manMaestroMan.usuarios}" var="usumanane"
+                                                           itemLabel="#{usumanane.det_nom}" itemValue="#{usumanane.cod_usu}"/> 
+                                        </p:selectOneMenu>
+                                        <p:inputText value="#{manMaestroMan.ane_det_obs}" style="font-weight:bold;" size="50" maxlength="200"/>
+                                        <p:commandButton title="Agregar" icon="ui-icon-plus" style="width:30px;" 
+                                                         actionListener="#{manMaestroMan.agregaranexo()}"
+                                                         update=":frmMaestra"
+                                                         disabled="#{manSeguridad.disableOpt('botonMantenimientoAneAgregar')}"
+                                                         />
+                                        <p:commandButton title="Eliminar" icon="ui-icon-minus" style="width:30px;" 
+                                                         actionListener="#{manMaestroMan.eliminarAnexos()}"
+                                                         update=":frmMaestra"
+                                                         disabled="#{manSeguridad.disableOpt('botonMantenimientoAneEliminar')}"
+                                                         >
+                                            <p:confirm header="Eliminar Mantenimiento" 
+                                                       message="El Anexo será eliminado aun sin guardar el mantenimiento ¿Realmente desea Proceder?" 
+                                                       icon="ui-icon-alert"/>
+                                        </p:commandButton>
+
+
+                                    </h:panelGrid>
+                                    <p:fileUpload id="fupman2" 
+                                                  fileUploadListener="#{manMaestroMan.upload}" 
+                                                  mode="advanced" dragDropSupport="true"
+                                                  fileLimit="1" 
+                                                  label="Seleccionar" cancelLabel="Cancelar" uploadLabel="Subir" 
+                                                  value="#{manMaestroMan.file}"
+                                                  auto="true"
+                                                  />
+                                </p:panel>
+                                <p:dataTable id="dtDetAne2" var="vDetAne" 
+                                             value="#{manMaestroMan.anexos}" 
+                                             emptyMessage="No se encontraron resultados" 
+                                             selection="#{manMaestroMan.catmantenimientosane}" 
+                                             selectionMode="single"
+                                             rowKey="#{vDetAne.det_man}"
+                                             editable="false"
+                                             scrollable="true"
+                                             scrollHeight="80"
+                                             style="width:800px"
+                                             >
+                                    <p:ajax event="rowSelect" listener="#{manMaestroMan.onRowSelectAne}" update=":frmMaestra"/>
+
+                                    <p:column style="width:10px;" headerText="Tipo">
+                                        <p:link href="#{vDetAne.rut_ane}" 
+                                                value="#{vDetAne.nomtip}" 
+                                                target="_blank"
+                                                />
+                                    </p:column>
+                                    <p:column style="width:150px" headerText="Observaciones">
+                                        <h:outputText value="#{vDetAne.det_obs}" />
+                                    </p:column>
+                                    <p:column style="width:60px" headerText="Compartido por">
+                                        <h:outputText value="#{vDetAne.nomusu}" />
+                                    </p:column>
+                                </p:dataTable>
+                            </p:tab>
+                        </p:tabView>
+                    </p:layoutUnit>
+                </p:layout>
+            </h:form>
+        </p:dialog>
+        
+        <p:dialog  id="dlgMaestraNew" widgetVar="wMaestraNew" modal="true" 
+                   width="760" height="480" closable="false" resizable="false" 
+                   header="Datos Generales del Mantenimiento" rendered="true" 
+                   dynamic="false" visible="false" 
+                   >
+            <h:form id="frmMaestraNew" >
+                <p:growl id="msgMaestraNew" showDetail="true" life="4500"/>
+                <p:toolbar>
+                    <f:facet name="right">
+                        <p:commandButton value="Guardar" style=" width: 100px;"
+                                         update=":frmMaestra"
+                                         icon="ui-icon-disk" 
+                                         actionListener="#{manMaestroMan.guardarencabezado()}"
+                                         disabled="#{manSeguridad.disableOpt('botonNuevoMantenimientoGuardar')}"
+                                         />
+                        <p:commandButton value="Cancelar" style=" width: 100px;"
+                                         update=":frmMaestra"
+                                         icon="ui-icon-close" 
+                                         onclick="PF('wMaestraNew').hide()"
+                                         />
+                    </f:facet>
+                </p:toolbar>
+                <p:panel>
+                    <h:panelGrid columns="5" cellpadding="5">
+                        <h:outputText value="ID WO" style="font-weight:bold;"/>
+                        <h:outputText value="Externo" style="font-weight:bold;"/>
+                        <h:outputText value="Tipo" style="font-weight:bold;"/>
+                        <h:outputText value="Fecha Inicio" style="font-weight:bold;"/>
+                        <h:outputText value="Fecha Fin" style="font-weight:bold;"/>
+                        <p:inputText value="#{manMaestroMan.cod_alt}" size="9" maxlength="11" readonly="true"/>
+                        <p:selectOneMenu value="#{manMaestroMan.flg_ext}" 
+                                         style=" width: 120px;">
+                            <f:selectItem itemLabel="No" itemValue="0"/>
+                            <f:selectItem itemLabel="Sí" itemValue="1"/>
+
+                        </p:selectOneMenu>
+                        <p:selectOneMenu value="#{manMaestroMan.cod_tip}" 
+                                         style=" width: 120px;">
+                            <f:selectItem itemLabel="Ninguno" itemValue="0"/>
+                            <f:selectItems value="#{manMaestroMan.tipos}" var="tipmanman"
+                                           itemLabel="#{tipmanman.nom_tip}" itemValue="#{tipmanman.cod_tip}"/> 
+                        </p:selectOneMenu>
+                        <p:calendar  pattern="dd/MM/yyyy HH:mm" locale="es" 
+                                     readonlyInput="true" showOn="button" 
+                                     size="16"
+                                     value="#{manMaestroMan.dfecini}"
+                                     >
+                            <p:ajax event="dateSelect" listener="#{manMaestroMan.dateSelectedFencabezado}" />
+                        </p:calendar>
+                        <p:calendar  pattern="dd/MM/yyyy HH:mm" locale="es" 
+                                     readonlyInput="true" showOn="button" 
+                                     size="16"
+                                     value="#{manMaestroMan.dfecfinF}"
+                                     >
+                            <p:ajax event="dateSelect" listener="#{manMaestroMan.dateSelectedFencabezadoFin}" />
+                        </p:calendar>
+                    </h:panelGrid>
+                    <h:panelGrid columns="2" cellpadding="5">
+                        <h:outputText value="Responsable" style="font-weight:bold;"/>
+                        <h:outputText value="Periodicidad" style="font-weight:bold;"/>
+
+                        <p:selectOneMenu value="#{manMaestroMan.cod_usu}" 
+                                         style=" width: 200px;">
+                            <f:selectItem itemLabel="Ninguno" itemValue="0"/>
+                            <f:selectItems value="#{manMaestroMan.usuarios}" var="usumanman"
+                                           itemLabel="#{usumanman.det_nom}" itemValue="#{usumanman.cod_usu}"/> 
+                        </p:selectOneMenu>
+                        <p:selectOneMenu value="#{manMaestroMan.cod_per}" 
+                                         style=" width: 120px;">
+                            <f:selectItem itemLabel="Ninguna" itemValue="0"/>
+                            <f:selectItems value="#{manMaestroMan.periodos}" var="permanman"
+                                           itemLabel="#{permanman.nom_per}" itemValue="#{permanman.cod_per}"/> 
+                        </p:selectOneMenu>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1" cellpadding="5">
+                        <h:outputText value="Observaciones" style="font-weight:bold;"/>
+                        <p:inputTextarea cols="102" rows="2"
+                                         maxlength="500"
+                                         value="#{manMaestroMan.det_obs}"
+                                         onfocus="this.select()"
+                                         />
+                    </h:panelGrid>
+                    <h:panelGrid columns="1" cellpadding="5">
+                        <h:outputText value="Fallas Observadas" style="font-weight:bold;"/>
+                    </h:panelGrid>
+                    <h:panelGrid columns="4" cellpadding="5">
+                        <h:outputText value="Grupo Falla" style="font-weight:bold;"/>
+                        <p:selectOneMenu value="#{manMaestroMan.cod_gru_fal}" 
+                                         style=" width: 500px;">
+                            <p:ajax event="change" listener="#{manMaestroMan.llenarListaFallas()}" update="somfallasnewman" />
+                            <f:selectItem itemLabel="Ninguno" itemValue="0"/>
+                            <f:selectItems value="#{manMaestroMan.grupofallas}" var="somgrufalnewman"
+                                           itemLabel="#{somgrufalnewman.nom_gru_fal}" itemValue="#{somgrufalnewman.cod_gru_fal}"/> 
+                        </p:selectOneMenu>
+                        <h:outputText value="" style="font-weight:bold;"/>
+                        <h:outputText value="" style="font-weight:bold;"/>
+                        <h:outputText value="Detalle Falla" style="font-weight:bold;"/>
+                        <p:selectOneMenu value="#{manMaestroMan.cod_fal}" 
+                                         style=" width: 500px;"
+                                         id="somfallasnewman"
+                                         >
+                            <f:selectItem itemLabel="Ninguna" itemValue="0"/>
+                            <f:selectItems value="#{manMaestroMan.listafallas}" var="somfalnewman"
+                                           itemLabel="#{somfalnewman.nom_fal}" itemValue="#{somfalnewman.cod_fal}"/> 
+                        </p:selectOneMenu>
+                        <p:commandButton title="Agregar" icon="ui-icon-plus" style="width:30px;" 
+                                         actionListener="#{manMaestroMan.agregarfalla()}"
+                                         update=":frmMaestraNew"
+                                         disabled="#{manSeguridad.disableOpt('botonFallasAgregar')}"
+                                         />
+                        <p:commandButton title="Eliminar" icon="ui-icon-minus" style="width:30px;" 
+                                         actionListener="#{manMaestroMan.eliminarfalla()}"
+                                         update=":frmMaestraNew"
+                                         disabled="#{manSeguridad.disableOpt('botonFallasEliminar')}"
+                                         />
+                    </h:panelGrid>
+                </p:panel>
+                <p:dataTable id="dtFallMan" var="vFallMan" 
+                             value="#{manMaestroMan.fallas}" 
+                             emptyMessage="No se encontraron resultados" 
+                             selection="#{manMaestroMan.catmantenimientosfal}" 
+                             selectionMode="single"
+                             rowKey="#{vFallMan.det_man}"
+                             editable="false"
+                             scrollable="true"
+                             scrollHeight="80"
+                             style="width:700px;"
+                             >
+
+                    <p:ajax event="rowSelect" listener="#{manMaestroMan.onRowSelectFal}" 
+                            update=":frmMaestraNew"/>
+
+                    <p:column style="width:50px;" headerText="Item">
+                        <h:outputText value="#{vFallMan.det_man}" />
+                    </p:column>
+                    <p:column style="width:100px;" headerText="Grupo">
+                        <h:outputText value="#{vFallMan.nomgrup}" />
+                    </p:column>
+                    <p:column style="width:250px;" headerText="Falla">
+                        <h:outputText value="#{vFallMan.nomfal}" />
+                    </p:column>
+
+
+
+                </p:dataTable>
+            </h:form>
+        </p:dialog>
+
+        <p:dialog  id="dlgExistenciasMan" widgetVar="wExistenciasMan" modal="true" 
+                   width="850" height="360" closable="false" resizable="false" 
+                   header="Existencias" rendered="true" 
+                   dynamic="false" visible="false"  
+                   >
+            <h:form id="frmExistenciasMan">
+                <p:toolbar>
+                    <f:facet name="right">
+                        <p:commandButton value="Cerrar" style=" width: 100px;"
+                                         onclick="PF('wExistenciasMan').hide()"
+                                         actionListener="#{manMaestroMan.cerrarventanaexistencia()}"
+                                         update=":frmMaestra,:frmExistenciasMan"
+                                         icon="ui-icon-close"
+                                         />
+                    </f:facet>
+
+                </p:toolbar>
+                <p:panel>
+                    <h:panelGrid columns="5" cellpadding="5">
+
+                        <h:outputText value="País" style="font-weight:bold;"/>
+                        <h:outputText value="Bodega" style="font-weight:bold;"/>
+                        <h:outputText value="Ubicación" style="font-weight:bold;"/>
+                        <h:outputText value="Pieza" style="font-weight:bold;"/>
+                        <h:outputText value="" style="font-weight:bold;"/>
+
+                        <p:inputText size="20" value="#{manMaestroMan.nompai}" readonly="true"/>
+                        <p:inputText size="20" value="#{manMaestroMan.nombod}" readonly="true"/>
+                        <p:inputText size="20" value="#{manMaestroMan.nomubi}" readonly="true"/>
+
+
+                        <p:selectOneMenu value="#{manMaestroMan.pie_cod_pie}" 
+                                         style=" width: 200px;"
+                                         filter="true" 
+                                         filterMatchMode="contains"
+                                         >
+                            <f:selectItem itemLabel="Ninguno" itemValue="0"/>
+                            <f:selectItems value="#{manMaestroMan.existenciareal}" var="lstpiemanpie"
+                                           itemLabel="#{lstpiemanpie.cod_ref} | #{lstpiemanpie.nom_pie}" itemValue="#{lstpiemanpie.cod_pie}"/> 
+                        </p:selectOneMenu>
+
+
+                        <p:commandButton title="Buscar" 
+                                         icon="ui-icon-search" 
+                                         style=" width: 30px;" 
+                                         actionListener="#{manMaestroMan.buscarexistencia()}" 
+                                         update="dtExistenciasMan"
+                                         />
+                    </h:panelGrid>
+                </p:panel>
+                <p:dataTable id="dtExistenciasMan" var="vExistenciasMan" 
+                             value="#{manMaestroMan.existencias}" 
+                             emptyMessage="No se encontraron resultados" 
+                             selection="#{manMaestroMan.catpiezasconexistencia}" 
+                             selectionMode="single"
+                             rowKey="#{vExistenciasMan.cod_pie}"
+                             scrollable="true"
+                             scrollHeight="180"
+                             style="width:823px"
+                             >
+
+
+
+                    <p:column style="width:50px;" headerText="Bodega">
+                        <h:outputText value="#{vExistenciasMan.nombod}" />
+                    </p:column>
+                    <p:column style="width:50px;" headerText="Ubicación">
+                        <h:outputText value="#{vExistenciasMan.nomubi}" />
+                    </p:column>
+                    <p:column style="width:50px;" headerText="Pieza">
+                        <h:outputText value="#{vExistenciasMan.nompie}" />
+                    </p:column>
+                    <p:column style="width:50px;" headerText="Stock">
+                        <h:outputText value="#{vExistenciasMan.can_sto}" />
+                    </p:column>
+                    <p:column style="width:50px;" headerText="Reserva">
+                        <h:outputText value="#{vExistenciasMan.can_res}" />
+                    </p:column>
+                    <p:column style="width:50px;" headerText="Disponible">
+                        <h:outputText value="#{vExistenciasMan.can_sto - vExistenciasMan.can_res}" />
+                    </p:column>
+
+                </p:dataTable>
+            </h:form>
+        </p:dialog>
+
+        <p:dialog  id="dlgSolReqMan" widgetVar="wSolReqMan" modal="true" 
+                   width="840" height="460" closable="false" resizable="false" 
+                   header="Solicitud del Mantenimiento" rendered="true" 
+                   dynamic="false" visible="false" 
+                   >
+
+            <h:form id="frmSolReqMan"> 
+                <p:growl id="msgSolReqMan" showDetail="true" life="4500"/>
+                <p:toolbar>
+                    <f:facet name="left">
+                        <p:commandButton value="Actualizar" style=" width: 100px;"
+                                         actionListener="#{manMaestroMan.iniciarventanaSolicitudes()}"
+                                         update=":frmSolReqMan"
+                                         icon="ui-icon-refresh"
+                                         /> 
+                        <p:commandButton value="Cerrar" style=" width: 100px;"
+                                         onclick="PF('wSolReqMan').hide()"
+                                         actionListener="#{manMaestroMan.cerrarventanaSolicitudes()}"
+                                         update=":frmSolReqMan"
+                                         icon="ui-icon-close"
+                                         />
+
+                    </f:facet>
+
+                </p:toolbar>
+
+                <p:panel>
+                    <p:dataTable id="dtEstadoSolReq" var="vEstadoSolReq" 
+                                 value="#{manMaestroMan.maestro}" 
+                                 emptyMessage="Este Mantenimiento no ha Generado Solicitudes ni Requisiciones." 
+                                 selectionMode="single" 
+                                 selection="#{manMaestroMan.catmaestro}" 
+                                 rowKey="#{vEstadoSolReq.cod_mae}"
+                                 editable="false" 
+                                 style="width:790px"
+                                 scrollable="true"
+                                 scrollHeight="120"
+                                 >
+
+                        <p:ajax event="rowSelect" listener="#{manMaestroMan.onRowSelect}" 
+                                update=":frmSolReqMan"/>
+                        <p:ajax event="rowUnselect" listener="#{manMaestroMan.onRowUnselect}" 
+                                update=":frmSolReqMan"/>
+
+                        <p:column style="width:70px;" headerText="Sol/Req">
+                            <h:outputText value="#{vEstadoSolReq.cod_usu_sol}" />
+                        </p:column>
+                        <p:column style="width:40px;" headerText="Código">
+                            <h:outputText value="#{vEstadoSolReq.cod_mae}" />
+                        </p:column>
+                        <p:column style="width:60px;" headerText="Fecha">
+                            <h:outputText value="#{vEstadoSolReq.fec_sol}" />
+                        </p:column>
+                        <p:column style="width:120px" headerText="Departamento">
+                            <h:outputText value="#{vEstadoSolReq.nomdep}" />
+                        </p:column>
+                        <p:column style="width:120px" headerText="Equipo">
+                            <h:outputText value="#{vEstadoSolReq.nommaq}" />
+                        </p:column>
+                        <p:column style="width:130px" headerText="Estado">
+                            <h:outputText value="#{vEstadoSolReq.det_sta}" />
+                        </p:column>
+                    </p:dataTable>
+                </p:panel>
+
+
+                <p:panel>
+                    <p:dataTable id="dtEstadoDetSolReq" var="vEsDetSolReq" 
+                                 value="#{manMaestroMan.detalles}" 
+                                 emptyMessage="No se encontraron resultados" 
+                                 selectionMode="single" 
+                                 selection="#{manMaestroMan.catdetalles}" 
+                                 rowKey="#{vEsDetSolReq.cod_det}"
+                                 editable="false" 
+                                 style="width:790px"
+                                 scrollable="true"
+                                 scrollHeight="200"
+                                 >
+                        <p:ajax event="rowSelect" listener="#{manMaestroMan.onRowSelect}" 
+                                update=":frmSolReqMan"/>
+                        <p:ajax event="rowUnselect"/>
+
+                        <p:column style="width:30px;" headerText="Can.Solic.">
+                            <h:outputText value="#{vEsDetSolReq.det_can_sol}" />
+                        </p:column>
+                        <p:column style="width:30px;" headerText="Can.Entreg.">
+                            <h:outputText value="#{vEsDetSolReq.det_can_ent}" />
+                        </p:column>
+                        <p:column style="width:30px;" headerText="Can.Pend.">
+                            <h:outputText value="#{vEsDetSolReq.det_can_pen}" />
+                        </p:column>
+                        <p:column style="width:250px" headerText="Descripción Item">
+                            <h:outputText value="#{vEsDetSolReq.des_ite}" />
+                        </p:column>
+                        <p:column style="width:100px" headerText="Estado">
+                            <h:outputText value="#{vEsDetSolReq.det_sta}" />
+                        </p:column>
+
+                    </p:dataTable>
+                </p:panel>
+
+            </h:form>
+        </p:dialog>
+
+        <p:dialog  id="dlgAutoSolReq" widgetVar="wAutoSolReq" modal="true" 
+                   width="300" height="130" closable="false" resizable="false" 
+                   header="Items sin Solicitar" rendered="true" 
+                   dynamic="false" visible="false" 
+                   >
+
+            <h:form id="frmAutoSolReq"> 
+                <p:panel>
+                    <h:panelGrid columns="1" style=" text-align: center;">
+                        <h:outputText value="#{manMaestroMan.mmensaje}" style="font-weight:bold;"/>
+                    </h:panelGrid>
+
+                </p:panel>
+                <br></br>
+                <div align="center">
+                    <h:panelGrid columns="2" style=" text-align: center;">
+                        <p:commandButton value="SÍ" style=" width: 100px;"
+                                         actionListener="#{manMaestroMan.generarsolicitudes()}"
+                                         onclick="PF('wAutoSolReq').hide()"
+                                         update=":frmMaestra"
+                                         icon="ui-icon-check"
+                                         disabled="#{manSeguridad.disableOpt('botonAutoSolReqAceptar')}"
+                                         /> 
+                        <p:commandButton value="NO" style=" width: 100px;"
+                                         onclick="PF('wAutoSolReq').hide()"
+                                         actionListener="#{manMaestroMan.limpiarventana()}"
+                                         icon="ui-icon-close"
+                                         />
+                    </h:panelGrid>
+                </div>
+            </h:form>
+        </p:dialog>
+        
+        
+        <!--******************************************************************** 
+        **************** Pantalla Calendarización de mantenimientos ************
+        *********************************************************************-->
+
+        <p:dialog  id="dlgCalend" widgetVar="wCalend" modal="true" 
+                   width="800" height="540" closable="true" resizable="false" 
+                   header="Calendario de Mantenimientos" rendered="true" 
+                   dynamic="false" visible="false" 
+                   >
+
+            <h:form id="frmCalend">
+                <p:growl id="messages" showDetail="true" />
+                <p:schedule id="schedule" value="#{manMaestroMan.mttoModel}" 
+                            widgetVar="myschedule" 
+                            timeZone="GMT+2" 
+                            locale="es" 
+                            aspectRatio="1.7" >
+                    <p:ajax event="eventSelect" listener="#{manMaestroMan.onEventSelect}" update=":frmMaestra" oncomplete="PF('wMaestra').show();" />
+                    <p:ajax event="eventMove" listener="#{manMaestroMan.onEventMove}" update="messages" />
+                    <p:ajax event="eventResize" listener="#{manMaestroMan.onEventResize}" update="messages" />
+                </p:schedule>
+            </h:form>
+        </p:dialog>
+
+        
+         <!--********************************************************************
+        ******************* Mantenimiento Unidades Medida **********************
+        *********************************************************************-->
+
+        <p:dialog  id="dlgUniMed" widgetVar="wUniMed" modal="true" 
+                   width="500" height="380" closable="false" resizable="false" 
+                   header="Mantenimiento de Unidades de Medida" rendered="true" 
+                   dynamic="false" 
+                   >
+
+            <h:form id="frmUniMed"> 
+                <p:growl id="msgUniMed" showDetail="true" life="4500"/>
+                <p:toolbar>
+                    <f:facet name="left">
+                        <p:commandButton value="Nuevo" style=" width: 100px;"
+                                         actionListener="#{manUniMed.nuevo()}"
+                                         update=":frmUniMed"
+                                         icon="ui-icon-document"
+                                         />
+                        <p:commandButton value="Guardar" style=" width: 100px;"
+                                         actionListener="#{manUniMed.guardar()}"
+                                         update=":frmUniMed"
+                                         icon="ui-icon-disk"
+                                         > 
+                            <p:confirm header="Guardar Registro" 
+                                       message="¿Realmente desea Guardar este Registro?" 
+                                       icon="ui-icon-alert"/>
+                        </p:commandButton>
+                        <p:commandButton value="Eliminar" style=" width: 100px;"
+                                         actionListener="#{manUniMed.eliminar()}"
+                                         update=":frmUniMed"
+                                         icon="ui-icon-trash"
+                                         >
+                            <p:confirm header="Eliminar Registro" 
+                                       message="¿Realmente desea eliminar este Registro?" 
+                                       icon="ui-icon-alert"/>
+                        </p:commandButton>
+                        <p:commandButton value="Cerrar" style=" width: 100px;"
+                                         onclick="PF('wUniMed').hide()"
+                                         actionListener="#{manUniMed.cerrarventana()}"
+                                         update=":frmUniMed"
+                                         icon="ui-icon-close"
+                                         />
+
+                    </f:facet>
+
+                </p:toolbar>
+                <p:panel>
+                    <div style=" background-color: #ebf8fe;">
+                        <p:focus for="txtabreviaturaunimed" />
+                        <h:panelGrid columns="2" cellpadding="5">
+                            <h:outputText value="Abreviatura" style="font-weight:bold;"/>
+                            <p:inputText id="txtabreviaturaunimed" 
+                                         size="30"
+                                         maxlength="25"
+                                         value="#{manUniMed.abr_uni}"
+                                         onfocus="this.select()"
+                                         />
+                            <h:outputText value="Nombre" style="font-weight:bold;"/>
+                            <p:inputText id="txtnombreunimed" 
+                                         size="30"
+                                         maxlength="25"
+                                         value="#{manUniMed.nom_uni}"
+                                         onfocus="this.select()"
+                                         />
+                        </h:panelGrid>
+                    </div>
+                </p:panel>
+                <p:panel>
+                    <p:dataTable id="dtunimed" var="vUniMed" 
+                                 value="#{manUniMed.unidades}" 
+                                 emptyMessage="No se encontraron resultados" 
+                                 selectionMode="single" selection="#{manUniMed.catunidades}" 
+                                 rowKey="#{vUniMed.cod_uni}"
+                                 editable="false"
+                                 scrollable="true"
+                                 scrollHeight="150"
+                                 style="width:440px"
+                                 >
+                        <p:ajax event="rowSelect" listener="#{manUniMed.onRowSelect}" 
+                                update=":frmUniMed"/>
+                        <p:ajax event="rowUnselect"/>
+
+                        <p:column style="width:60px" headerText="Nombre">
+                            <h:outputText value="#{vUniMed.nom_uni}" />
+                        </p:column>
+                        <p:column style="width:40px" headerText="Abreviatura">
+                            <h:outputText value="#{vUniMed.abr_uni}" />
+                        </p:column>
+                    </p:dataTable>
+                </p:panel>
+            </h:form>
+        </p:dialog>
+       
+    </h:body>
+
+</html>

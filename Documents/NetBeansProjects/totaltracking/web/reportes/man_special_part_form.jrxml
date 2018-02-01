@@ -1,0 +1,505 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="null" pageWidth="612" pageHeight="792" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isFloatColumnFooter="true" uuid="eff8a08e-5b11-42f4-96aa-59e5f8bce870">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="cod_lis_pie" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[select 
+mae.por_qbo as invoice, 
+mae.fec_tra, 
+mae.det_obs as remarks, 
+ane.nom_sol, 
+case ane.flg_xxx when 1 then 'X' else '' end as charge,
+case ane.flg_xxx when 2 then 'X' else '' end as reagent,
+case ane.flg_xxx when 3 then 'X' else '' end as warranty,
+case ane.flg_xxx when 4 then 'X' else '' end as repairs,
+case ane.flg_xxx when 5 then 'X' else '' end as refurbish,
+ifnull(ane.det_att,'') as det_att, 
+pai.nom_pai, 
+cli.nom_cli,
+pie.cod_ref,
+pie.nom_pie,
+det.det_can
+from tbl_pie as mae
+left join tbl_pie_ane as ane on mae.cod_lis_pie = ane.cod_lis_pie
+left join tbl_pie_det as det on mae.cod_lis_pie = det.cod_enc
+left join cat_pai as pai on mae.cod_pai = pai.cod_pai
+left join cat_cli as cli on mae.cod_pro = cli.cod_cli 
+left join cat_pie as pie on det.cod_pie = pie.cod_pie
+where mae.cod_lis_pie = $P{cod_lis_pie}]]>
+	</queryString>
+	<field name="invoice" class="java.lang.String"/>
+	<field name="fec_tra" class="java.sql.Date">
+		<fieldDescription><![CDATA[Fecha Transacción]]></fieldDescription>
+	</field>
+	<field name="remarks" class="java.lang.String"/>
+	<field name="nom_sol" class="java.lang.String">
+		<fieldDescription><![CDATA[nombre solicitante]]></fieldDescription>
+	</field>
+	<field name="charge" class="java.lang.String"/>
+	<field name="reagent" class="java.lang.String"/>
+	<field name="warranty" class="java.lang.String"/>
+	<field name="repairs" class="java.lang.String"/>
+	<field name="refurbish" class="java.lang.String"/>
+	<field name="det_att" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nom_pai" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nom_cli" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="cod_ref" class="java.lang.String"/>
+	<field name="nom_pie" class="java.lang.String"/>
+	<field name="det_can" class="java.lang.Double"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="68" splitType="Stretch">
+			<textField pattern="dd MMM yyyy h:mm a">
+				<reportElement x="463" y="13" width="109" height="15" uuid="79a2d865-2651-43e6-bda0-f2a66ceb14d4"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement x="0" y="0" width="143" height="62" uuid="2babd15f-dcfb-46f6-aab5-844e4d0df6c5"/>
+				<imageExpression><![CDATA["logodiamed.gif"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement mode="Opaque" x="463" y="0" width="109" height="13" backcolor="#CCCCCC" uuid="a1bd8119-14e8-4b10-a961-1de0b359b89d"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[REPRINT DATE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="32" width="572" height="23" uuid="22d1acf8-b2ea-4c5d-9d52-87055d08c067"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[SPECIAL PARTS/EQUIPMENT FORM]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="463" y="28" width="109" height="13" backcolor="#CCCCCC" uuid="f52a9c07-c03d-4308-b414-147e567149f5"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TT/ID]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="463" y="41" width="109" height="15" uuid="e40edb57-6267-484e-b441-061076795268"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{cod_lis_pie}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="17" splitType="Stretch">
+			<textField evaluationTime="Report">
+				<reportElement x="532" y="1" width="40" height="15" uuid="8a38f79f-0baa-46ad-ad39-7f782d8caf69"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="452" y="1" width="80" height="15" uuid="07b0b618-a94e-48ef-89de-2aa1c7ca6b8e"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="209" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="13" width="52" height="20" uuid="172b279f-29c5-4add-896b-4c447e411032"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ATTN:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="439" y="13" width="33" height="20" uuid="c832116e-5db0-4198-b30b-de8b9963ad7e"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[DATE:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="44" width="258" height="20" uuid="8d78cdbc-da4c-4f29-bef5-428ab104ed8a"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[PLEASE SHIP THE FOLLOWING                                     TO:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="128" y="44" width="100" height="20" forecolor="#FF6600" uuid="98c8de6e-21ed-46d1-bab5-760a669414b2"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[PARTS/EQUIPMENT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="64" width="64" height="20" uuid="b72a9906-92b5-428d-a90d-6a0a1e58d447"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[NAME : (POC)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="84" width="64" height="20" uuid="ed8e3f63-5a3e-4014-b56b-0b125164e6e8"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[LOCATION:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="104" width="64" height="20" uuid="e2581862-e495-4fdd-afba-d5d1e80606e5"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[LAB NAME:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="158" width="115" height="20" uuid="4dd29c37-71bb-49d9-a5cd-7566ffe12070"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CHARGE ________]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="98" y="158" width="115" height="20" uuid="7595af5d-a4e7-48ce-b950-4db07cc620af"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[REAGE CONTRACT ________]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="230" y="158" width="115" height="20" uuid="7b68bb3f-5e4e-4e88-8f83-780fb6deffff"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[WARRANTY ________]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="345" y="158" width="115" height="20" uuid="3d529e5b-45ef-4fca-929f-2e2045b40e32"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[REPAIRS ________]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="460" y="158" width="112" height="20" uuid="5008ec22-7396-4b4d-b886-94999102606e"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[REFURBISH ________]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="124" width="64" height="20" uuid="8c3eccd0-89bd-4395-bafd-a794ae01a94d"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[INVOICE:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="189" width="120" height="20" backcolor="#CCCCCC" uuid="27c4777a-7648-4960-9481-2cbaf6d0e5ad"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[PART #]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="120" y="189" width="352" height="20" backcolor="#CCCCCC" uuid="bd49b40a-70dc-480c-8476-18d49eff4498"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[DESCRIPTION]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="472" y="189" width="100" height="20" backcolor="#CCCCCC" uuid="9821daf2-1adf-4ddf-99bc-567320115d41"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[QUANTITY]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="55" y="13" width="374" height="20" uuid="225b06b9-2b5a-463a-845c-1e1b7a03655c"/>
+				<box leftPadding="2">
+					<bottomPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{det_att}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd-MMM-yyyy" isBlankWhenNull="true">
+				<reportElement x="463" y="13" width="109" height="20" uuid="8591f63c-aa1d-48cc-9931-bc52ef54d946"/>
+				<box leftPadding="15">
+					<bottomPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fec_tra}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="54" y="64" width="503" height="20" uuid="db17832e-6d27-4b08-bb99-7136b000c5b5"/>
+				<box leftPadding="10">
+					<bottomPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nom_sol}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="54" y="84" width="503" height="20" uuid="8bfcbb06-fc94-4602-9209-e048d29f12e5"/>
+				<box leftPadding="10">
+					<bottomPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nom_pai}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="54" y="104" width="503" height="20" uuid="af5279bf-6764-4221-b416-1b9f98509e25"/>
+				<box leftPadding="10">
+					<bottomPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nom_cli}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="54" y="124" width="503" height="20" uuid="61b5060c-38f4-4ce4-a840-4e6a438dfa69"/>
+				<box leftPadding="10">
+					<bottomPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{invoice}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="291" y="158" width="38" height="20" uuid="ab2233da-ed55-4f9f-b712-86a13915cc2b"/>
+				<textFieldExpression><![CDATA[$F{warranty}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="52" y="157" width="31" height="20" uuid="4237e3e0-199c-4f9c-8577-32b668bcb172"/>
+				<textFieldExpression><![CDATA[$F{charge}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="191" y="157" width="21" height="20" uuid="83fc1c4d-d6b0-40e1-843f-94fe54afc86d"/>
+				<textFieldExpression><![CDATA[$F{reagent}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="396" y="158" width="30" height="20" uuid="5c7e3254-611a-4fad-a76b-f283b0ddb47f"/>
+				<textFieldExpression><![CDATA[$F{repairs}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="524" y="157" width="32" height="20" uuid="99ae1d18-170c-4839-9f53-bc3e4c238e41"/>
+				<textFieldExpression><![CDATA[$F{refurbish}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="13" splitType="Stretch">
+			<rectangle>
+				<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="572" height="13" forecolor="#CCCCCC" backcolor="#E9FAF9" uuid="5d505e51-f482-4058-99c4-232739e58fae">
+					<printWhenExpression><![CDATA[new Boolean($V{REPORT_COUNT}.intValue() % 2 == 0)]]></printWhenExpression>
+				</reportElement>
+			</rectangle>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="120" height="13" uuid="0a6f0704-7f8a-4571-92d3-72e6f4ba61e6"/>
+				<box leftPadding="5">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cod_ref}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="120" y="0" width="352" height="13" uuid="7d184c6a-4be9-4a9a-98c7-52d67a01b67b"/>
+				<box leftPadding="5">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nom_pie}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00;(-#,##0.00)" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="472" y="0" width="100" height="13" uuid="7c727d3d-0cf4-4e06-bf2a-744eea7f8df4"/>
+				<box leftPadding="0" rightPadding="5">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{det_can}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="150" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="13" width="160" height="20" uuid="6dd82f32-4da9-4105-ab55-b6593592241f"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[DIAMED TECHNICAL DEPARTMENT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="33" width="32" height="20" uuid="09984bad-d221-4537-b92b-9b3c1d862509"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[NOTE:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="31" y="33" width="227" height="20" forecolor="#FF0000" uuid="32414db6-4c5d-4fa7-a5ff-5a0d8b58be3d"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Do not ship without Mike, Amado or Marty’s signature ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="53" width="291" height="20" uuid="97317505-3fea-4ee6-84b8-66e4f83066d5"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Parts/equipments have been reviewed and are ready for shipping: ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="82" width="291" height="20" uuid="3cf13d8f-48e4-4e4f-8add-8f5e049ceedc"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[SIGN: ___________________________________________________]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="32" y="114" width="524" height="36" uuid="36c8d4f2-a501-40e0-988f-1173cfd2e67e"/>
+				<box topPadding="1" leftPadding="50">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{remarks}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="31" y="110" width="51" height="20" uuid="e79109b7-ab6e-4247-88cc-70bfb5e712b5"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[REMARKS:]]></text>
+			</staticText>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch">
+			<line>
+				<reportElement x="13" y="33" width="550" height="1" forecolor="#FF0000" backcolor="#FF0000" uuid="d695f061-da21-4eb7-b9ba-d5f91f04ad5e"/>
+			</line>
+			<staticText>
+				<reportElement x="0" y="34" width="572" height="20" forecolor="#999999" uuid="2cb38a59-bec5-44d1-a5b2-9b37bb1cfe8a"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[6095 NW 167TH Street,  Suite  D-7 •  Miami,  Florida 33015 •   ( (305)  558-4510 ]]></text>
+			</staticText>
+		</band>
+	</pageFooter>
+</jasperReport>
