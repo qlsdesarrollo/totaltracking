@@ -11147,15 +11147,10 @@
                    >
 
             <h:form id="frmManIt"> 
+                <f:passThroughAttribute name="autocomplete" value="off" />
                 <p:growl id="msgManIt" showDetail="true" life="8500"/>
                 <p:toolbar>
-                    <f:facet name="left">
-                        <p:commandButton value="Nuevo" style=" width: 100px;"
-                                         actionListener="#{manEquiposIT.nuevo()}"
-                                         update=":frmManIt"
-                                         icon="ui-icon-document"
-                                         />
-                    </f:facet>
+
                     <f:facet name="right">
                         <p:commandButton value="Cerrar" style=" width: 100px;"
                                          onclick="PF('wManIt').hide()"
@@ -11164,24 +11159,26 @@
                                          icon="ui-icon-close"
                                          />
                     </f:facet>
-                    
+
                 </p:toolbar>
                 <div  style="background-color: #ebf8fe;" >
                     <h:panelGrid columns="2" cellpadding="5">
-                        
+
                         <p:panel style="background-color: #ebf8fe;">
-                            <h:panelGrid columns="6" cellpadding="5" styleClass="noBorders">
+                            <h:panelGrid columns="7" cellpadding="4" styleClass="noBorders">
                                 <h:outputText value="País" style="font-weight:bold;" />
                                 <h:outputText value="Tipo de Equipo" style="font-weight:bold;" />
                                 <h:outputText value="Código" style="font-weight:bold;" />
                                 <h:outputText value="Imagen" style="font-weight:bold;" />
                                 <h:outputText value="" style="font-weight:bold;" />
                                 <h:outputText value="" style="font-weight:bold;" />
+                                <h:outputText value="" style="font-weight:bold;" />
                                 <p:selectOneMenu value="#{manEquiposIT.cod_pai}" style=" width: 150px;" autoWidth="false"
                                                  filter="true"
                                                  filterMatchMode="contains"
                                                  >
-                                    <f:selectItem itemLabel="Ninguno" itemValue="0"/>
+                                    <p:ajax event="change" listener="#{manEquiposIT.llenarEquipos()}" update=":frmManIt"/>
+                                    <f:selectItem itemLabel="Todos" itemValue="0"/>
                                     <f:selectItems value="#{manEquiposIT.paises}" var="sompaiequit"
                                                    itemLabel="#{sompaiequit.nom_pai}" itemValue="#{sompaiequit.cod_pai}"/> 
                                 </p:selectOneMenu>
@@ -11198,33 +11195,40 @@
                                     <f:selectItem itemLabel="Regulador" itemValue="Regulador"/>
                                     <f:selectItem itemLabel="Otro" itemValue="Otro"/>
                                 </p:selectOneMenu>
-                                <p:inputText value="#{manEquiposIT.cod_equ}" maxlength="150" size="25" />
+                                <p:inputText value="#{manEquiposIT.cod_equ}" maxlength="150" size="25" autocomplete="off"/>
                                 <p:fileUpload 
-                                      fileUploadListener="#{manEquipos.upload}" 
-                                      mode="simple" 
-                                      fileLimit="1" 
-                                      allowTypes="/(\.|\/)(jpg|JPG|jepg|JEPG|gif|GIF|png|PNG)$/" 
-                                      update=":frmEquipos:msgEquipos,:frmEquipos:imgequ"
-                                      label="Anexo" 
-                                      cancelLabel="Cancelar" 
-                                      uploadLabel="Cargar" 
-                                      auto="true"
-                                      />
+                                    fileUploadListener="#{manEquiposIT.upload}" 
+                                    mode="advanced" 
+                                    fileLimit="1" 
+                                    allowTypes="/(\.|\/)(jpg|JPG|jepg|JEPG|gif|GIF|png|PNG)$/" 
+                                    update=":frmManIt"
+                                    label="Imagen" 
+                                    cancelLabel="Cancelar" 
+                                    uploadLabel="Cargar" 
+                                    auto="true"
+                                    skinSimple="true"  style="height: 20px;"
+                                    />
+                                <p:commandButton style=" width: 30px;  background: blue; color: #FFFFFF;"
+                                                 action="#{manEquiposIT.nuevo()}" 
+                                                 update=":frmManIt"
+                                                 icon="fa fa-shower"
+                                                 title="Limpiar Controles"
+                                                 />
                                 <p:commandButton style=" width: 30px;  background: forestgreen; color: #FFFFFF;"
                                                  action="#{manEquiposIT.guardarEquipo()}" 
-                                         update=":frmManIt"
-                                         icon="fa fa-floppy-o"
-                                         title="Agregar"
-                                         />
+                                                 update=":frmManIt"
+                                                 icon="fa fa-floppy-o"
+                                                 title="Agregar"
+                                                 />
                                 <p:commandButton style=" width: 30px; background: #bd2828; color: #FFFFFF;"
                                                  action="#{manEquiposIT.eliminarEquipo()}" 
                                                  update=":frmManIt"
                                                  icon="fa fa-trash-o"
                                                  title="Eliminar"
                                                  />
-                               
+
                             </h:panelGrid>
-                             
+
                             <p:dataTable id="dtItEnc" var="vdtItEnc" 
                                          value="#{manEquiposIT.equipos}" 
                                          emptyMessage="No se encontraron resultados" 
@@ -11234,67 +11238,91 @@
                                          editable="false" 
                                          style="width:900px;"
                                          scrollable="true"
-                                         scrollHeight="110"
+                                         scrollHeight="100"
                                          >
                                 <p:ajax event="rowSelect" listener="#{manEquiposIT.onRowSelectEnc}" 
                                         update=":frmManIt" />
 
-                                <p:column style="width:80px" headerText="País">
+                                <p:column style="width:80px" headerText="País" sortBy="#{vdtItEnc.nompai}">
                                     <h:outputText value="#{vdtItEnc.nompai}" />
                                 </p:column>
-                                <p:column style="width:100px" headerText="Cliente Actual">
+                                <p:column style="width:100px" headerText="Cliente Actual" sortBy="#{vdtItEnc.nomcli}">
                                     <h:outputText value="#{vdtItEnc.nomcli}" />
                                 </p:column>
-                                <p:column style="width:100px" headerText="Tipo Equipo">
+                                <p:column style="width:100px" headerText="Tipo Equipo" sortBy="#{vdtItEnc.tip_equ}">
                                     <h:outputText value="#{vdtItEnc.tip_equ}" />
                                 </p:column>
-                                <p:column style="width:150px" headerText="Código">
+                                <p:column style="width:150px" headerText="Código" sortBy="#{vdtItEnc.cod_equ}">
                                     <h:outputText value="#{vdtItEnc.cod_equ}" />
                                 </p:column>
                             </p:dataTable>
 
-                        
+
                         </p:panel>
                         <p:panel>
-                            <h:graphicImage width="180" height="180" value="logo.png" />
+                            <p:graphicImage width="180" height="#{manEquiposIT.mancho_enc}" 
+                                            value="#{manEquiposIT.mimagen_enc}" 
+                                            cache="false"
+                                            />
                         </p:panel>
-                        
+
                     </h:panelGrid>
 
                 </div>
 
-                <p:tabView activeIndex="0" >
+                <p:tabView activeIndex="#{manEquiposIT.tabindex}" >
+                    <p:ajax event="tabChange" listener="#{manEquiposIT.onTabChange}" />
                     <p:tab title="Piezas" id="tbItPiezas">
                         <div style=" background-color: #ebf8fe;" >
                             <h:panelGrid columns="2" cellpadding="3" >
                                 <p:panel style="background-color: #ebf8fe;">
-                                
                                     <h:panelGrid columns="5" cellpadding="5" styleClass="noBorders">
                                         <h:outputText value="Código" style="font-weight:bold;" />
                                         <h:outputText value="Nombre" style="font-weight:bold;" />
                                         <h:outputText value="Marca" style="font-weight:bold;" />
                                         <h:outputText value="Modelo" style="font-weight:bold;" />
                                         <h:outputText value="Serie" style="font-weight:bold;" />
-                                        <p:inputText value="0" maxlength="20" size="20" />
-                                        <p:inputText value="0" maxlength="200" size="22" />
-                                        <p:inputText value="0" maxlength="200" size="22" />
-                                        <p:inputText value="0" maxlength="200" size="25" />
-                                        <p:inputText value="0" maxlength="200" size="25" />
+                                        <p:inputText value="#{manEquiposIT.cod_pie}" maxlength="20" size="20" autocomplete="off"/>
+                                        <p:inputText value="#{manEquiposIT.nom_ite}" maxlength="200" size="22" autocomplete="off"/>
+
+                                        <p:selectOneMenu value="#{manEquiposIT.det_mar}" style=" width: 130px;" 
+                                                         autoWidth="false"
+                                                         filter="true"
+                                                         filterMatchMode="contains"
+                                                         editable="true"
+                                                         >
+                                            <f:selectItem itemLabel="" itemValue=""/>
+                                            <f:selectItems value="#{manEquiposIT.marcas}" var="somitmarc"
+                                                           itemLabel="#{somitmarc.descripcion}" itemValue="#{somitmarc.codigo}"/> 
+                                        </p:selectOneMenu>
+
+                                        <p:selectOneMenu value="#{manEquiposIT.det_mod}" style=" width: 140px;" autoWidth="false"
+                                                         filter="true"
+                                                         filterMatchMode="contains"
+                                                         editable="true"
+                                                         >
+                                            <f:selectItem itemLabel="" itemValue=""/>
+                                            <f:selectItems value="#{manEquiposIT.modelos}" var="somitmod"
+                                                           itemLabel="#{somitmod.descripcion}" itemValue="#{somitmod.codigo}"/> 
+                                        </p:selectOneMenu>
+                                        <p:inputText value="#{manEquiposIT.det_ser}" maxlength="200" size="25" autocomplete="off"/>
 
                                         <h:outputText value="Sistema Operativo" style="font-weight:bold;" />
                                         <h:outputText value="Bits" style="font-weight:bold;" />
                                         <h:outputText value="Fecha Adquisición" style="font-weight:bold;" />
                                         <h:outputText value="Fecha Retiro" style="font-weight:bold;" />
                                         <h:outputText value="Estado" style="font-weight:bold;" />
-                                        <p:selectOneMenu value="#{manUsuarios.cod_pai}" style=" width: 150px;" autoWidth="false"
+                                        <p:selectOneMenu value="#{manEquiposIT.det_sop}" style=" width: 130px;" 
+                                                         autoWidth="false"
                                                          filter="true"
                                                          filterMatchMode="contains"
+                                                         editable="true" 
                                                          >
-                                            <f:selectItem itemLabel="Ninguno" itemValue="0"/>
-                                            <f:selectItems value="#{manUsuarios.paises}" var="mpaiusu"
-                                                           itemLabel="#{mpaiusu.nom_pai}" itemValue="#{mpaiusu.cod_pai}"/> 
+                                            <f:selectItem itemLabel="" itemValue=""/>
+                                            <f:selectItems value="#{manEquiposIT.sistemasop}" var="somitsop"
+                                                           itemLabel="#{somitsop.descripcion}" itemValue="#{somitsop.codigo}"/> 
                                         </p:selectOneMenu>
-                                        <p:selectOneMenu value="#{manUsuarios.tip_usu}" style=" width: 80px;" autoWidth="false">
+                                        <p:selectOneMenu value="#{manEquiposIT.det_bit}" style=" width: 80px;" autoWidth="false">
                                             <f:selectItem itemLabel="Ninguno" itemValue="0"/>
                                             <f:selectItem itemLabel="32 bits" itemValue="32 bits"/>
                                             <f:selectItem itemLabel="64 bits" itemValue="64 bits"/>
@@ -11302,63 +11330,108 @@
                                         <p:calendar  pattern="dd/MM/yyyy" locale="es"
                                                      readonlyInput="true" 
                                                      showOn="button" size="16"
-                                                     value="#{lupControlLicencias.dcadede}"
+                                                     value="#{manEquiposIT.dfec_adq}"
                                                      navigator="true"
                                                      >
-                                            <p:ajax event="dateSelect" listener="#{lupControlLicencias.dateSelectedcadede}" />
+                                            <p:ajax event="dateSelect" listener="#{manEquiposIT.dateSelectedAdq}" />
                                         </p:calendar> 
                                         <h:panelGroup>
-                                            <p:selectBooleanCheckbox value="true" />
+                                            <p:selectBooleanCheckbox value="#{manEquiposIT.flg_act}">
+                                                <p:ajax listener="#{manEquiposIT.selectCheckBox}" update="calfecmovit" />
+                                            </p:selectBooleanCheckbox>
                                             <p:spacer width="10px"/>
-                                            <p:calendar  pattern="dd/MM/yyyy" locale="es"
+                                            <p:calendar  id="calfecmovit" pattern="dd/MM/yyyy" locale="es"
                                                          readonlyInput="true" 
                                                          showOn="button" size="16"
-                                                         value="#{lupControlLicencias.dcadede}"
+                                                         value="#{manEquiposIT.dfec_cam}"
                                                          navigator="true"
+                                                         disabled="#{!manEquiposIT.flg_act}"
                                                          >
-                                                <p:ajax event="dateSelect" listener="#{lupControlLicencias.dateSelectedcadede}" />
+                                                <p:ajax event="dateSelect" listener="#{manEquiposIT.dateSelectedCam}" />
                                             </p:calendar>
                                         </h:panelGroup>
 
-                                        <p:selectOneMenu value="#{manUsuarios.tip_usu}" style=" width: 100px;" autoWidth="false">
+                                        <p:selectOneMenu value="#{manEquiposIT.flg_sta}" style=" width: 100px;" autoWidth="false">
                                             <f:selectItem itemLabel="Operativo" itemValue="Operativo"/>
                                             <f:selectItem itemLabel="Deficiente" itemValue="Deficiente"/>
                                             <f:selectItem itemLabel="Inservible" itemValue="Inservible"/>
                                         </p:selectOneMenu>
 
                                     </h:panelGrid>
-                                    <h:panelGrid columns="1" cellpadding="5" styleClass="noBorders">
+                                    <h:panelGrid columns="4" cellpadding="4" styleClass="noBorders">
                                         <h:outputText value="Observaciones" style="font-weight:bold;" />
-                                        <p:inputTextarea cols="131" rows="1" value ="0" />  
+                                        <h:outputText value="" style="font-weight:bold;" />
+                                        <h:outputText value="" style="font-weight:bold;" />
+                                        <h:outputText value="" style="font-weight:bold;" />
+                                        <p:inputTextarea cols="111" rows="1" value ="#{manEquiposIT.det_obs}" /> 
+                                        <p:commandButton style=" width: 30px;  background: blue; color: #FFFFFF;"
+                                                         action="#{manEquiposIT.nuevoDet()}" 
+                                                         update=":frmManIt"
+                                                         icon="fa fa-shower"
+                                                         title="Limpiar Controles"
+                                                         />
+                                        <p:commandButton style=" width: 30px;  background: forestgreen; color: #FFFFFF;"
+                                                         action="#{manEquiposIT.guardarEquipoDet()}" 
+                                                         update=":frmManIt"
+                                                         icon="fa fa-floppy-o"
+                                                         title="Agregar"
+                                                         />
+                                        <p:commandButton style=" width: 30px; background: #bd2828; color: #FFFFFF;"
+                                                         action="#{manEquiposIT.eliminarEquipoDet()}" 
+                                                         update=":frmManIt"
+                                                         icon="fa fa-trash-o"
+                                                         title="Eliminar"
+                                                         />
                                     </h:panelGrid>
 
                                     <p:dataTable id="dtItEncDet" var="vdtItEncDet" 
-                                                 value="#{manUsuarios.usuarios}" 
+                                                 value="#{manEquiposIT.equiposdet}" 
                                                  emptyMessage="No se encontraron resultados" 
-                                                 selectionMode="single" selection="#{manUsuarios.catusuarios}" 
-                                                 rowKey="#{vdtItEncDet.cod_usu}"
+                                                 selectionMode="single" selection="#{manEquiposIT.catlisequdet}" 
+                                                 rowKey="#{vdtItEncDet.cod_det}"
                                                  editable="false" 
                                                  style="width:864px"
                                                  scrollable="true"
                                                  scrollHeight="90"
                                                  >
-                                        <p:ajax event="rowSelect" listener="#{manUsuarios.onRowSelect}" 
+                                        <p:ajax event="rowSelect" listener="#{manEquiposIT.onRowSelectEncDet}" 
                                                 update=":frmManIt" />
 
-                                        <p:column style="width:50px" headerText="País">
-                                            <h:outputText value="#{vdtItEncDet.nom_usu}" />
+                                        <p:column style="width:20px" headerText="Nombre" sortBy="#{vdtItEncDet.nom_ite}">
+                                            <h:outputText value="#{vdtItEncDet.nom_ite}" />
                                         </p:column>
-                                        <p:column style="width:100px" headerText="Tipo Equipo">
-                                            <h:outputText value="#{vdtItEncDet.nomdep}" />
+                                        <p:column style="width:25px" headerText="Marca" sortBy="#{vdtItEncDet.det_mar}">
+                                            <h:outputText value="#{vdtItEncDet.det_mar}" />
                                         </p:column>
-                                        <p:column style="width:200px" headerText="Código">
-                                            <h:outputText value="#{vdtItEncDet.det_nom}" />
+                                        <p:column style="width:25px" headerText="Modelo" sortBy="#{vdtItEncDet.det_mod}">
+                                            <h:outputText value="#{vdtItEncDet.det_mod}" />
+                                        </p:column>
+                                        <p:column style="width:25px" headerText="Serie" sortBy="#{vdtItEncDet.det_ser}">
+                                            <h:outputText value="#{vdtItEncDet.det_ser}" />
+                                        </p:column>
+                                        <p:column style="width:20px" headerText="Estado" sortBy="#{vdtItEncDet.flg_sta}">
+                                            <h:outputText value="#{vdtItEncDet.flg_sta}" />
                                         </p:column>
                                     </p:dataTable>
-                                
+
                                 </p:panel>
                                 <p:panel>
-                                <h:graphicImage width="200" height="200" value="logo.png" />
+                                    <p:graphicImage width="200" height="#{manEquiposIT.mancho_det}" 
+                                                    value="#{manEquiposIT.mimagen_det}" 
+                                                    cache="false"
+                                                    />
+                                    <p:fileUpload 
+                                    fileUploadListener="#{manEquiposIT.uploadDet}" 
+                                    mode="advanced" 
+                                    fileLimit="1" 
+                                    allowTypes="/(\.|\/)(jpg|JPG|jepg|JEPG|gif|GIF|png|PNG)$/" 
+                                    update=":frmManIt"
+                                    label="Imagen" 
+                                    cancelLabel="Cancelar" 
+                                    uploadLabel="Cargar" 
+                                    auto="true"
+                                    skinSimple="true" 
+                                    />
                                 </p:panel>
                             </h:panelGrid>
                         </div>
@@ -11366,87 +11439,126 @@
                     </p:tab>
                     <p:tab title="Asignaciones" id="tbItAsignaciones">
                         <div style=" background-color: #ebf8fe;">
-                            <h:panelGrid columns="6" cellpadding="5">
+                            <h:panelGrid columns="9" cellpadding="3">
                                 <h:outputText value="Fecha Asignación" style="font-weight:bold;" />
                                 <h:outputText value="País" style="font-weight:bold;" />
                                 <h:outputText value="Cliente" style="font-weight:bold;" />
                                 <h:outputText value="Departamento" style="font-weight:bold;" />
                                 <h:outputText value="Usuario" style="font-weight:bold;" />
                                 <h:outputText value="Fecha Remoción" style="font-weight:bold;" />
+                                <h:outputText value="" style="font-weight:bold;" />
+                                <h:outputText value="" style="font-weight:bold;" />
+                                <h:outputText value="" style="font-weight:bold;" />
                                 <p:calendar  pattern="dd/MM/yyyy" locale="es"
                                              readonlyInput="true" 
                                              showOn="button" size="16"
-                                             value="#{lupControlLicencias.dcadede}"
+                                             value="#{manEquiposIT.dasi_fec_asi}"
                                              navigator="true"
                                              >
-                                    <p:ajax event="dateSelect" listener="#{lupControlLicencias.dateSelectedcadede}" />
+                                    <p:ajax event="dateSelect" listener="#{manEquiposIT.dateSelectedAsi}" />
                                 </p:calendar>
-                                <p:selectOneMenu value="#{manUsuarios.cod_pai}" style=" width: 150px;" autoWidth="false"
+                                <p:selectOneMenu value="#{manEquiposIT.asi_cod_pai}" style=" width: 150px;" 
+                                                 autoWidth="false"
                                                  filter="true"
                                                  filterMatchMode="contains"
                                                  >
+                                    <p:ajax event="change" listener="#{manEquiposIT.selectPaisAsi()}" update=":frmManIt"/>
                                     <f:selectItem itemLabel="Ninguno" itemValue="0"/>
-                                    <f:selectItems value="#{manUsuarios.paises}" var="mpaiusu"
-                                                   itemLabel="#{mpaiusu.nom_pai}" itemValue="#{mpaiusu.cod_pai}"/> 
+                                    <f:selectItems value="#{manEquiposIT.paises}" var="sompaiequit"
+                                                   itemLabel="#{sompaiequit.nom_pai}" itemValue="#{sompaiequit.cod_pai}"/> 
                                 </p:selectOneMenu>
-                                <p:selectOneMenu value="#{manUsuarios.cod_pai}" style=" width: 170px;" autoWidth="false"
+                                <p:selectOneMenu value="#{manEquiposIT.asi_nom_cli}" style=" width: 160px;" 
+                                                 autoWidth="false"
                                                  filter="true"
                                                  filterMatchMode="contains"
+                                                 editable="true" 
                                                  >
-                                    <f:selectItem itemLabel="Ninguno" itemValue="0"/>
-                                    <f:selectItems value="#{manUsuarios.paises}" var="mpaiusu"
-                                                   itemLabel="#{mpaiusu.nom_pai}" itemValue="#{mpaiusu.cod_pai}"/> 
+                                    <p:ajax event="change" listener="#{manEquiposIT.selectClientes()}" update=":frmManIt"/>
+                                    <f:selectItem itemLabel="" itemValue=""/>
+                                    <f:selectItems value="#{manEquiposIT.clientes}" var="somcliequit"
+                                                   itemLabel="#{somcliequit.descripcion}" itemValue="#{somcliequit.codigo}"/> 
                                 </p:selectOneMenu>
-                                <p:selectOneMenu value="#{manUsuarios.cod_pai}" style=" width: 140px;" autoWidth="false"
+                                <p:selectOneMenu value="#{manEquiposIT.asi_nom_dep}" style=" width: 140px;" 
+                                                 autoWidth="false"
                                                  filter="true"
                                                  filterMatchMode="contains"
+                                                 editable="true" 
                                                  >
-                                    <f:selectItem itemLabel="Ninguno" itemValue="0"/>
-                                    <f:selectItems value="#{manUsuarios.paises}" var="mpaiusu"
-                                                   itemLabel="#{mpaiusu.nom_pai}" itemValue="#{mpaiusu.cod_pai}"/> 
+                                    <f:selectItem itemLabel="" itemValue=""/>
+                                    <f:selectItems value="#{manEquiposIT.departamentos}" var="somdepequit"
+                                                   itemLabel="#{somdepequit.descripcion}" itemValue="#{somdepequit.codigo}"/> 
                                 </p:selectOneMenu>
-                                <p:selectOneMenu value="#{manUsuarios.cod_pai}" style=" width: 170px;" autoWidth="false"
+                                <p:selectOneMenu value="#{manEquiposIT.asi_nom_usu}" style=" width: 160px;" 
+                                                 autoWidth="false"
                                                  filter="true"
                                                  filterMatchMode="contains"
+                                                 editable="true" 
                                                  >
-                                    <f:selectItem itemLabel="Ninguno" itemValue="0"/>
-                                    <f:selectItems value="#{manUsuarios.paises}" var="mpaiusu"
-                                                   itemLabel="#{mpaiusu.nom_pai}" itemValue="#{mpaiusu.cod_pai}"/> 
+                                    <f:selectItem itemLabel="" itemValue=""/>
+                                    <f:selectItems value="#{manEquiposIT.usuarios}" var="somusuequit"
+                                                   itemLabel="#{somusuequit.descripcion}" itemValue="#{somusuequit.codigo}"/> 
                                 </p:selectOneMenu>
-
 
                                 <p:calendar  pattern="dd/MM/yyyy" locale="es"
                                              readonlyInput="true" 
                                              showOn="button" size="16"
-                                             value="#{lupControlLicencias.dcadede}"
+                                             value="#{manEquiposIT.dasi_fec_cam}"
                                              navigator="true"
                                              >
-                                    <p:ajax event="dateSelect" listener="#{lupControlLicencias.dateSelectedcadede}" />
+                                    <p:ajax event="dateSelect" listener="#{manEquiposIT.dateSelectedRet}" />
                                 </p:calendar> 
+
+                                <p:commandButton style=" width: 30px;  background: blue; color: #FFFFFF;"
+                                                 action="#{manEquiposIT.nuevoAsi()}" 
+                                                 update=":frmManIt"
+                                                 icon="fa fa-shower"
+                                                 title="Limpiar Controles"
+                                                 />
+                                <p:commandButton style=" width: 30px;  background: forestgreen; color: #FFFFFF;"
+                                                 action="#{manEquiposIT.guardarAsignaciones()}" 
+                                                 update=":frmManIt"
+                                                 icon="fa fa-floppy-o"
+                                                 title="Agregar"
+                                                 />
+                                <p:commandButton style=" width: 30px; background: #bd2828; color: #FFFFFF;"
+                                                 action="#{manEquiposIT.eliminarAsignaciones()}" 
+                                                 update=":frmManIt"
+                                                 icon="fa fa-trash-o"
+                                                 title="Eliminar"
+                                                 />
 
 
                             </h:panelGrid>
                             <p:dataTable id="dtItAsig" var="vdtItAsig" 
-                                         value="#{manUsuarios.usuarios}" 
+                                         value="#{manEquiposIT.asiequcli}" 
                                          emptyMessage="No se encontraron resultados" 
-                                         selectionMode="single" selection="#{manUsuarios.catusuarios}" 
-                                         rowKey="#{vdtItAsig.cod_usu}"
+                                         selectionMode="single" selection="#{manEquiposIT.catasiequcli}" 
+                                         rowKey="#{vdtItAsig.cod_det}"
                                          editable="false" 
                                          style="width:1140px"
                                          scrollable="true"
                                          scrollHeight="210"
                                          >
-                                <p:ajax event="rowSelect" listener="#{manUsuarios.onRowSelect}" 
+                                <p:ajax event="rowSelect" listener="#{manEquiposIT.onRowSelectAsignaciones}" 
                                         update=":frmManIt" />
 
-                                <p:column style="width:50px" headerText="País">
+                                <p:column style="width:50px" headerText="País" sortBy="#{vdtItAsig.nompai}">
+                                    <h:outputText value="#{vdtItAsig.nompai}" />
+                                </p:column>
+                                <p:column style="width:100px" headerText="Cliente" sortBy="#{vdtItAsig.nom_cli}">
+                                    <h:outputText value="#{vdtItAsig.nom_cli}" />
+                                </p:column>
+                                <p:column style="width:100px" headerText="Departamento" sortBy="#{vdtItAsig.nom_dep}">
+                                    <h:outputText value="#{vdtItAsig.nom_dep}" />
+                                </p:column>
+                                <p:column style="width:100px" headerText="Usuario" sortBy="#{vdtItAsig.nom_usu}">
                                     <h:outputText value="#{vdtItAsig.nom_usu}" />
                                 </p:column>
-                                <p:column style="width:100px" headerText="Tipo Equipo">
-                                    <h:outputText value="#{vdtItAsig.nomdep}" />
+                                <p:column style="width:50px" headerText="Asignación" sortBy="#{vdtItAsig.fec_asi}">
+                                    <h:outputText value="#{vdtItAsig.fec_asi}" />
                                 </p:column>
-                                <p:column style="width:200px" headerText="Código">
-                                    <h:outputText value="#{vdtItAsig.det_nom}" />
+                                <p:column style="width:50px" headerText="Retiro" sortBy="#{vdtItAsig.fec_cam}">
+                                    <h:outputText value="#{vdtItAsig.fec_cam}" />
                                 </p:column>
                             </p:dataTable>
 
@@ -11462,48 +11574,82 @@
                                     <p:calendar  pattern="dd/MM/yyyy" locale="es"
                                                  readonlyInput="true" 
                                                  showOn="button" size="16"
-                                                 value="#{lupControlLicencias.dcadede}"
+                                                 value="#{manEquiposIT.dman_enc_fec_ini}"
                                                  navigator="true"
                                                  >
-                                        <p:ajax event="dateSelect" listener="#{lupControlLicencias.dateSelectedcadede}" />
+                                        <p:ajax event="dateSelect" listener="#{manEquiposIT.dateSelectedManIni}" />
                                     </p:calendar>
-                                    <p:selectOneMenu value="#{manUsuarios.cod_pai}" style=" width: 150px;" autoWidth="false"
+                                    <p:selectOneMenu value="#{manEquiposIT.man_enc_tip_man}" style=" width: 150px;" 
+                                                     autoWidth="false"
+                                                     filter="true"
+                                                     filterMatchMode="contains"
+                                                     >
+                                        <f:selectItem itemLabel="Preventivo" itemValue="Preventivo"/>
+                                        <f:selectItem itemLabel="Correctivo" itemValue="Correctivo"/>
+                                        <f:selectItem itemLabel="Instalación" itemValue="Instalación"/>
+                                        <f:selectItem itemLabel="Refurbish" itemValue="Refurbish"/>
+                                        <f:selectItem itemLabel="Desinstalación" itemValue="Desinstalación"/>
+                                    </p:selectOneMenu>
+                                    <p:selectOneMenu value="#{manEquiposIT.man_enc_usu_res}" style=" width: 150px;" autoWidth="false"
                                                      filter="true"
                                                      filterMatchMode="contains"
                                                      >
                                         <f:selectItem itemLabel="Ninguno" itemValue="0"/>
-                                        <f:selectItems value="#{manUsuarios.paises}" var="mpaiusu"
-                                                       itemLabel="#{mpaiusu.nom_pai}" itemValue="#{mpaiusu.cod_pai}"/> 
+                                        <f:selectItems value="#{manEquiposIT.responsables}" var="somresequit"
+                                                       itemLabel="#{somresequit.descripcion}" itemValue="#{somresequit.codigo}"/> 
                                     </p:selectOneMenu>
-                                    <p:selectOneMenu value="#{manUsuarios.cod_pai}" style=" width: 150px;" autoWidth="false"
-                                                     filter="true"
-                                                     filterMatchMode="contains"
-                                                     >
-                                        <f:selectItem itemLabel="Ninguno" itemValue="0"/>
-                                        <f:selectItems value="#{manUsuarios.paises}" var="mpaiusu"
-                                                       itemLabel="#{mpaiusu.nom_pai}" itemValue="#{mpaiusu.cod_pai}"/> 
-                                    </p:selectOneMenu>
-                                
+
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid columns="1" cellpadding="3">
                                     <h:outputText value="Comentarios" style="font-weight:bold;" />
-                                    <p:inputTextarea value="0" cols="74" rows="1"/>
+                                    <p:inputTextarea value="#{manEquiposIT.man_enc_det_obs}" cols="74" rows="1"/>
                                 </h:panelGrid>
-                                <h:panelGrid columns="1" cellpadding="3">
+                                <h:panelGrid columns="5" cellpadding="3">
+                                    <h:outputText value="Estado" style="font-weight:bold;" />
                                     <h:outputText value="Fecha Final" style="font-weight:bold;" />
+                                    <h:outputText value="" style="font-weight:bold;" />
+                                    <h:outputText value="" style="font-weight:bold;" />
+                                    <h:outputText value="" style="font-weight:bold;" />
+                                    <p:selectOneMenu value="#{manEquiposIT.man_enc_det_sta}" style=" width: 160px;" 
+                                                 autoWidth="false"
+                                                 filter="true"
+                                                 filterMatchMode="contains"
+                                                 >
+                                        <f:selectItem itemLabel="PROGRAMADO" itemValue="PROGRAMADO"/>
+                                        <f:selectItem itemLabel="EN PROCESO" itemValue="EN PROCESO"/>
+                                        <f:selectItem itemLabel="FINALIZADO" itemValue="FINALIZADO"/>
+                                    </p:selectOneMenu>
                                     <p:calendar  pattern="dd/MM/yyyy" locale="es"
                                                  readonlyInput="true" 
                                                  showOn="button" size="16"
-                                                 value="#{lupControlLicencias.dcadede}"
+                                                 value="#{manEquiposIT.dman_enc_fec_fin}"
                                                  navigator="true"
                                                  >
-                                        <p:ajax event="dateSelect" listener="#{lupControlLicencias.dateSelectedcadede}" />
+                                        <p:ajax event="dateSelect" listener="#{manEquiposIT.dateSelectedManFin}" />
                                     </p:calendar>
-                                    
+                                    <p:commandButton style=" width: 30px;  background: blue; color: #FFFFFF;"
+                                                     action="#{manEquiposIT.nuevoMan()}" 
+                                                     update=":frmManIt"
+                                                     icon="fa fa-shower"
+                                                     title="Limpiar Controles"
+                                                     />
+                                    <p:commandButton style=" width: 30px;  background: forestgreen; color: #FFFFFF;"
+                                                     action="#{manEquiposIT.guardarMantenimiento()}" 
+                                                     update=":frmManIt"
+                                                     icon="fa fa-floppy-o"
+                                                     title="Agregar"
+                                                     />
+                                    <p:commandButton style=" width: 30px; background: #bd2828; color: #FFFFFF;"
+                                                     action="#{manEquiposIT.eliminarMantenimiento()}" 
+                                                     update=":frmManIt"
+                                                     icon="fa fa-trash-o"
+                                                     title="Eliminar"
+                                                     />
+
                                 </h:panelGrid>
-                                
-          
+
+
                             </p:panel>
                             <p:panel header="Detalle" styleClass="noBorders">
                                 <h:panelGrid columns="3" cellpadding="3">
@@ -11512,102 +11658,140 @@
                                     <h:outputText value="Responsable" style="font-weight:bold;" />
                                     <p:calendar  pattern="dd/MM/yyyy" locale="es"
                                                  readonlyInput="true" 
-                                                 showOn="button" size="16"
-                                                 value="#{lupControlLicencias.dcadede}"
+                                                 showOn="button" size="12"
+                                                 value="#{manEquiposIT.dman_det_fec_ini}"
                                                  navigator="true"
                                                  >
-                                        <p:ajax event="dateSelect" listener="#{lupControlLicencias.dateSelectedcadede}" />
+                                        <p:ajax event="dateSelect" listener="#{manEquiposIT.dateSelectedManDet}" />
                                     </p:calendar>
-                                    <p:selectOneMenu value="#{manUsuarios.cod_pai}" style=" width: 150px;" autoWidth="false"
+                                    <p:selectOneMenu value="#{manEquiposIT.man_det_cod_pie}" style=" width: 230px;" 
+                                                     autoWidth="false"
                                                      filter="true"
                                                      filterMatchMode="contains"
                                                      >
                                         <f:selectItem itemLabel="Ninguno" itemValue="0"/>
-                                        <f:selectItems value="#{manUsuarios.paises}" var="mpaiusu"
-                                                       itemLabel="#{mpaiusu.nom_pai}" itemValue="#{mpaiusu.cod_pai}"/> 
+                                        <f:selectItems value="#{manEquiposIT.piezas}" var="sompiemandetequit"
+                                                       itemLabel="#{sompiemandetequit.descripcion}" itemValue="#{sompiemandetequit.codigo}"/> 
                                     </p:selectOneMenu>
-                                    <p:selectOneMenu value="#{manUsuarios.cod_pai}" style=" width: 150px;" autoWidth="false"
+                                    <p:selectOneMenu value="#{manEquiposIT.man_enc_usu_res}" style=" width: 140px;" 
+                                                     autoWidth="false"
                                                      filter="true"
                                                      filterMatchMode="contains"
                                                      >
                                         <f:selectItem itemLabel="Ninguno" itemValue="0"/>
-                                        <f:selectItems value="#{manUsuarios.paises}" var="mpaiusu"
-                                                       itemLabel="#{mpaiusu.nom_pai}" itemValue="#{mpaiusu.cod_pai}"/> 
+                                        <f:selectItems value="#{manEquiposIT.responsables}" var="somresmandetequit"
+                                                       itemLabel="#{somresmandetequit.descripcion}" itemValue="#{somresmandetequit.codigo}"/> 
                                     </p:selectOneMenu>
-                                
+
                                 </h:panelGrid>  
-                                
+
                                 <h:panelGrid columns="1" cellpadding="3">
                                     <h:outputText value="Comentarios" style="font-weight:bold;" />
-                                    <p:inputTextarea value="0" cols="74" rows="1"/>
+                                    <p:inputTextarea value="#{manEquiposIT.man_det_det_obs}" cols="81" rows="1"/>
                                 </h:panelGrid>
-                                <h:panelGrid columns="3" cellpadding="3">
-                                    <h:outputText value="Tiempo (Minutos)" style="font-weight:bold;" />
+                                <h:panelGrid columns="7" cellpadding="2">
+                                    <h:outputText value="Tiempo (Min)" style="font-weight:bold;" />
                                     <h:outputText value="Costo" style="font-weight:bold;" />
                                     <h:outputText value="Anexo" style="font-weight:bold;" />
-                                    <p:inputNumber decimalPlaces="0" minValue="0" size="10"/>
-                                    <p:inputNumber decimalPlaces="2" minValue="0" size="15"/>
+                                    <h:outputText value="" style="font-weight:bold;" />
+                                    <h:outputText value="" style="font-weight:bold;" />
+                                    <h:outputText value="" style="font-weight:bold;" />
+                                    <h:outputText value="" style="font-weight:bold;" />
+                                    <p:inputNumber value="#{manEquiposIT.man_det_det_tie}" decimalPlaces="0" minValue="0" size="10"/>
+                                    <p:inputNumber value="#{manEquiposIT.man_det_det_cos}" decimalPlaces="2" minValue="0" size="12"/>
                                     <p:fileUpload 
-                                      fileUploadListener="#{manEquipos.upload}" 
-                                      mode="simple" 
-                                      fileLimit="1" 
-                                      allowTypes="/(\.|\/)(jpg|JPG|jepg|JEPG|gif|GIF|png|PNG)$/" 
-                                      update=":frmEquipos:msgEquipos,:frmEquipos:imgequ"
-                                      label="Anexo" 
-                                      cancelLabel="Cancelar" 
-                                      uploadLabel="Cargar" 
-                                      auto="true"
-                                      />
+                                        fileUploadListener="#{manEquiposIT.uploadAnexo}" 
+                                        mode="advanced" 
+                                        fileLimit="1" 
+                                        update=":frmManIt"
+                                        label="Anexo" 
+                                        cancelLabel="Cancelar" 
+                                        uploadLabel="Cargar" 
+                                        auto="true" style="height: 20px;"
+                                        />
+                                    <p:commandButton style=" width: 30px;  background: orange; color: #FFFFFF;"
+                                                     action="#{manEquiposIT.descargaranexo()}" 
+                                                     update=":frmManIt"
+                                                     icon="fa fa-download"
+                                                     title="Descargar"
+                                                     />
+                                    <p:commandButton style=" width: 30px;  background: blue; color: #FFFFFF;"
+                                                     action="#{manEquiposIT.nuevoManDet()}" 
+                                                     update=":frmManIt"
+                                                     icon="fa fa-shower"
+                                                     title="Limpiar Controles"
+                                                     />
+                                    <p:commandButton style=" width: 30px;  background: forestgreen; color: #FFFFFF;"
+                                                     action="#{manEquiposIT.guardarMantenimientoDet()}" 
+                                                     update=":frmManIt"
+                                                     icon="fa fa-floppy-o"
+                                                     title="Agregar"
+                                                     />
+                                    <p:commandButton style=" width: 30px; background: #bd2828; color: #FFFFFF;"
+                                                     action="#{manEquiposIT.eliminarMantenimientoDet()}" 
+                                                     update=":frmManIt"
+                                                     icon="fa fa-trash-o"
+                                                     title="Eliminar"
+                                                     />
                                 </h:panelGrid>
-                                    
+
                             </p:panel>
                             <p:dataTable id="dtItManMae" var="vdtItManMae" 
-                                value="#{manUsuarios.usuarios}" 
-                                emptyMessage="No se encontraron resultados" 
-                                selectionMode="single" selection="#{manUsuarios.catusuarios}" 
-                                rowKey="#{vdtItManMae.cod_usu}"
-                                editable="false" 
-                                style="width:530px"
-                                scrollable="true"
-                                scrollHeight="75"
-                                >
-                               <p:ajax event="rowSelect" listener="#{manUsuarios.onRowSelect}" 
-                                       update=":frmManIt" />
+                                         value="#{manEquiposIT.manequit}" 
+                                         emptyMessage="No se encontraron resultados" 
+                                         selectionMode="single" selection="#{manEquiposIT.catmanequit}" 
+                                         rowKey="#{vdtItManMae.cod_man}"
+                                         editable="false" 
+                                         style="width:530px"
+                                         scrollable="true"
+                                         scrollHeight="70"
+                                         >
+                                <p:ajax event="rowSelect" listener="#{manEquiposIT.onRowSelectMan}" 
+                                        update=":frmManIt" />
 
-                               <p:column style="width:50px" headerText="País">
-                                   <h:outputText value="#{vdtItManMae.nom_usu}" />
-                               </p:column>
-                               <p:column style="width:100px" headerText="Tipo Equipo">
-                                   <h:outputText value="#{vdtItManMae.nomdep}" />
-                               </p:column>
-                               <p:column style="width:200px" headerText="Código">
-                                   <h:outputText value="#{vdtItManMae.det_nom}" />
-                               </p:column>
-                           </p:dataTable>
-                            
-                           <p:dataTable id="dtItManDet" var="vdtItManDet" 
-                                value="#{manUsuarios.usuarios}" 
-                                emptyMessage="No se encontraron resultados" 
-                                selectionMode="single" selection="#{manUsuarios.catusuarios}" 
-                                rowKey="#{vdtItManDet.cod_usu}"
-                                editable="false" 
-                                style="width:530px"
-                                scrollable="true"
-                                scrollHeight="75"
-                                >
-                               <p:ajax event="rowSelect" listener="#{manUsuarios.onRowSelect}" 
-                                       update=":frmManIt" />
+                                <p:column style="width:5px" headerText="Inicio" sortBy="#{vdtItManMae.fec_ini}">
+                                    <h:outputText value="#{vdtItManMae.fec_ini}" />
+                                </p:column>
+                                <p:column style="width:15px" headerText="Tipo" sortBy="#{vdtItManMae.tip_man}">
+                                    <h:outputText value="#{vdtItManMae.tip_man}" />
+                                </p:column>
+                                <p:column style="width:30px" headerText="Respons." sortBy="#{vdtItManMae.nomusu}">
+                                    <h:outputText value="#{vdtItManMae.nomusu}" />
+                                </p:column>
+                                <p:column style="width:25px" headerText="Estado" sortBy="#{vdtItManMae.det_sta}">
+                                    <h:outputText value="#{vdtItManMae.det_sta}" />
+                                </p:column>
+                                <p:column style="width:25px" headerText="Fin" sortBy="#{vdtItManMae.fec_fin}">
+                                    <h:outputText value="#{vdtItManMae.fec_fin}" />
+                                </p:column>
+                            </p:dataTable>
 
-                               <p:column style="width:50px" headerText="País">
-                                   <h:outputText value="#{vdtItManDet.nom_usu}" />
-                               </p:column>
-                               <p:column style="width:100px" headerText="Tipo Equipo">
-                                   <h:outputText value="#{vdtItManDet.nomdep}" />
-                               </p:column>
-                               <p:column style="width:200px" headerText="Código">
-                                   <h:outputText value="#{vdtItManDet.det_nom}" />
-                               </p:column>
-                           </p:dataTable> 
+                            <p:dataTable id="dtItManDet" var="vdtItManDet" 
+                                         value="#{manEquiposIT.manequitdet}" 
+                                         emptyMessage="No se encontraron resultados" 
+                                         selectionMode="single" selection="#{manEquiposIT.catmanequitdet}" 
+                                         rowKey="#{vdtItManDet.cod_det}"
+                                         editable="false" 
+                                         style="width:580px"
+                                         scrollable="true"
+                                         scrollHeight="70"
+                                         >
+                                <p:ajax event="rowSelect" listener="#{manEquiposIT.onRowSelectManDet}" 
+                                        update=":frmManIt" />
+
+                                <p:column style="width:5px" headerText="Fecha" sortBy="#{vdtItManDet.fec_acc}">
+                                    <h:outputText value="#{vdtItManDet.fec_acc}" />
+                                </p:column>
+                                <p:column style="width:15px" headerText="Pieza" sortBy="#{vdtItManDet.nompieza}">
+                                    <h:outputText value="#{vdtItManDet.nompieza}" />
+                                </p:column>
+                                <p:column style="width:70px" headerText="Comentarios" >
+                                    <h:outputText value="#{vdtItManDet.det_obs}" />
+                                </p:column>
+                                <p:column style="width:20px" headerText="Anexo" >
+                                    <h:outputText value="#{vdtItManDet.anexo}" />
+                                </p:column>
+                            </p:dataTable> 
                         </h:panelGrid>    
                     </p:tab>    
 
